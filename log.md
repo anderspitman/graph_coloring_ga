@@ -17,3 +17,8 @@
   length becomes longer.
 * I'm assuming the population is always supposed to be the exact same size
   from generation to generation?
+
+
+# 2018-02-06
+
+* Encoding needs to represent nodes, not edges

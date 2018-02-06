@@ -1,0 +1,16 @@
+{
+  "name": "assignment1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha",
+    "build": "browserify main.js -o dist/bundle.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^15.2.0",
+    "mocha": "^5.0.0"
+  }
+}

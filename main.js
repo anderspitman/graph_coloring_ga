@@ -1,13 +1,28 @@
-console.log("Hi there");
+const graphUtils = require('./graph.js');
+const GA = require('./genetic_algorithm.js');
 
-const graph = require('./graph.js');
+fetch('sample_graph.g').then((response) => {
 
-const numColors = 3;
-const edgeListText = `\
-1 3
-0 2
-2 1`;
+  return response.text().then((text) => {
+    main(text);
+  })
+});
 
-const parsed = graph.parseEdgeListFromText(edgeListText);
+function main(graphText) {
 
-console.log(parsed);
+  const lines = graphText.split('\n');
+  const numColors = Number(lines[0]);
+  const edgeList = lines.slice(1);
+
+  const graph = graphUtils.createGraphFromLines(edgeList);
+
+  console.log(graph);
+  console.log();
+
+  const ga = new GA.GraphColoringGA({
+    numColors: numColors,
+    graph: graph,
+  });
+
+  ga.run();
+}
