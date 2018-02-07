@@ -37,12 +37,10 @@ class ScatterPlot {
 
     const background =
       this.two.makeRectangle(width / 2, height / 2, width, height);
-    background.fill = 'lightgray';
+    background.fill = '#ededed';
 
-    console.log("alloc");
-    // pre-allocate points
+    // pre-allocate points offscreen
     for (let i = 0; i < maxPoints; i++) {
-      // start offscreen
       const point =
         this.two.makeCircle(this.width + 100, this.height + 100, 2);
       point.fill = this.color ? this.color : 'steelblue';
@@ -50,7 +48,6 @@ class ScatterPlot {
 
       this.points.push(point);
     }
-    console.log("alloc done");
 
     //this.two.bind('update', () => {
     //}).play();
@@ -91,7 +88,7 @@ class ScatterPlot {
 
 function main(text) {
 
-  const numGenerations = 100;
+  const numGenerations = 200;
 
   const plotAvg = new ScatterPlot({
     domElementId: 'plot-avg',

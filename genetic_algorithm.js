@@ -8,6 +8,18 @@ function replaceAt(s, n, t) {
     return s.substring(0, n) + t + s.substring(n + 1);
 }
 
+// from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getRandomElement(array) {
+  return array[getRandomInt(0, array.length)];
+}
+
+
 class GraphColoringGA {
 
   constructor({
@@ -22,9 +34,11 @@ class GraphColoringGA {
     this.individualSize = graph.numVertices();
     this.sendMessage = sendMessage;
 
-    this.populationSize = 100;
-    this.mutationRate = 0.1;
-    this.crossoverRate = 0.4;
+    this.populationSize = 1000;
+    this.mutationRate = 0.5;
+    this.crossoverRate = 0.7;
+    // probability that more fit individual will be selected to be a parent
+    this.selectionBias = 0.8;
   }
 
   run() {
@@ -35,10 +49,7 @@ class GraphColoringGA {
 
     for (let i = 0; i < this.numGenerations; i++) {
 
-      //console.log("Running generation: " + (i + 1));
-
-      this.mutatePopulation();
-      this.selectPopulation();
+      this.doGeneration(i);
       
       if (this.maxFitness() === 1) {
         console.log("Optimum coloring found. Stopping");
@@ -49,59 +60,107 @@ class GraphColoringGA {
     console.log("done");
   }
 
-  mutatePopulation() {
+  doGeneration(index) {
 
-    let numMutated = 0;
-    for (let i = 0; i < this.populationSize; i++) {
+    const newPopulation = [];
 
-      const mutate = Math.random() <= this.mutationRate;
+    while (newPopulation.length < this.population.length) {
 
-      if (mutate) {
-        numMutated++;
-        this.mutateIndividual(i);
-      }
+      const parent1 = this.tournamentSelectIndividual();
+      const parent2 = this.tournamentSelectIndividual();
+
+      let [offspring1, offspring2] = this.crossover(parent1, parent2);
+
+      offspring1 = this.mutate(offspring1);
+      offspring2 = this.mutate(offspring2);
+
+      newPopulation.push(offspring1);
+      newPopulation.push(offspring2);
     }
 
-    //console.log("Mutation ratio: " + numMutated/this.populationSize);
-    
+    if (newPopulation.length > this.population.length) {
+      newPopulation = slice(0, newPopulation.length - 1);
+    }
+
+    this.population = newPopulation;
   }
 
-  mutateIndividual(i) {
+  tournamentSelectIndividual() {
 
-    const mutationIndex = Math.floor(Math.random() * this.individualSize);
+    const ind1 = this.getRandomIndividual();
+    const ind2 = this.getRandomIndividual();
 
-    const oldColor = this.population[i][mutationIndex];
+    const fit1 = this.fitness(ind1);
+    const fit2 = this.fitness(ind2);
 
-    const newColorIndex = Math.floor(Math.random() * this.numColors);
-    const newColor = ALPHABET[newColorIndex];
+    const selectMoreFit = Math.random() <= this.selectionBias;
 
-    this.population[i] =
-      replaceAt(this.population[i], mutationIndex, newColor);
+    let selected;
+    if (selectMoreFit) {
+      selected = fit1 > fit2 ? ind1 : ind2;
+    }
+    else {
+      selected = fit1 > fit2 ? ind2 : ind1;
+    }
+
+    return selected;
   }
 
-  selectPopulation() {
+  getRandomIndividual() {
+    return getRandomElement(this.population);
+  }
 
-    const popCopy = this.population.slice();
-    popCopy.sort((a, b) => {
-      const aFit = this.fitness(a);
-      const bFit = this.fitness(b);
+  crossover(parent1, parent2) {
 
-      if (aFit == bFit) {
-        return 0;
-      }
-      else if (aFit > bFit) {
-        return -1;
-      }
-      else {
-        return 1;
-      }
-    });
+    const crossover = Math.random() <= this.crossoverRate;
 
-    // TODO: currently only handles even population sizes
-    const topHalf = popCopy.slice(0, this.populationSize / 2);
-    //console.log(topHalf);
-    this.population = topHalf.concat(topHalf);
-    //this.selectedPopulation = topHalf;
+    let offspring1 = parent1;
+    let offspring2 = parent2;
+
+    if (crossover) {
+
+      const index1 = getRandomInt(0, this.individualSize);
+      const index2 = getRandomInt(0, this.individualSize);
+
+      const lower = index1 < index2 ? index1 : index2;
+      const higher = index1 > index2 ? index1 : index2;
+
+      const p1Lower = parent1.slice(0, lower);
+      const p1Crossover = parent2.slice(lower, higher);
+      const p1Higher = parent1.slice(higher);
+      offspring1 = p1Lower
+        .concat(p1Crossover)
+        .concat(p1Higher);
+
+      const p2Lower = parent2.slice(0, lower);
+      const p2Crossover = parent1.slice(lower, higher);
+      const p2Higher = parent2.slice(higher);
+      offspring2 = p2Lower
+        .concat(p2Crossover)
+        .concat(p2Higher);
+    }
+
+    return [offspring1, offspring2];
+  }
+
+  mutate(individual) {
+
+    let mutated = individual;
+
+    const mutate = Math.random() <= this.mutationRate;
+
+    if (mutate) {
+
+      const mutationIndex = getRandomInt(0, this.individualSize);
+      const oldColor = getRandomElement(individual);
+      const newColorIndex = getRandomInt(0, this.numColors);
+      const newColor = ALPHABET[newColorIndex];
+      mutated = replaceAt(individual, mutationIndex, newColor);
+
+      console.log(mutationIndex, individual, mutated);
+    }
+
+    return mutated;
   }
 
   maxFitness() {
@@ -123,7 +182,7 @@ class GraphColoringGA {
     const averageFitness = sum / this.population.length;
 
     //console.log("Average fitness: " + averageFitness);
-    //console.log("Max fitness: " + maxFitness);
+    console.log("Max fitness: " + maxFitness);
     //console.log("Max individual: " +  maxIndividual);
     this.sendMessage({
       topic: 'stats_update',
@@ -133,17 +192,6 @@ class GraphColoringGA {
     });
 
     return maxFitness;
-  }
-
-  averageFitness() {
-
-    let sum = 0;
-    for (let individual of this.population) {
-      const fitness = this.fitness(individual)
-      sum += fitness;
-    }
-
-    return sum / this.population.length;
   }
 
   randomPopulation() {
