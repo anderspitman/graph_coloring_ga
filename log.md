@@ -31,3 +31,5 @@
 
 * Wasn't converging because I had a bug in my edgelist parsing that let
   junk nodes through.
+* Seems like it might be running much faster comparing integers instead of
+  strings for node ids

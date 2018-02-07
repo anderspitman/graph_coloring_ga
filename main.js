@@ -49,7 +49,7 @@ function main(graphText) {
     domElementId: 'chart-graph',
     width: 500,
     height: 500,
-    vertices: Object.keys(graph.vertices),
+    vertices: graph.vertices.slice(),
     edges: graph.edges.slice(),
   });
 

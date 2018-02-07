@@ -1,37 +1,49 @@
 function parseEdgeList(lines) {
 
   const vertices = {};
+  const vertexArray = [];
   const edges = [];
 
-  for (let line of lines) {
+  let vertexIndex = 0;
 
-    if (line.length === 0) {
-      continue;
-    }
-    const edge = parseLine(line);
-    console.log(edge);
-    edges.push(edge);
+  function addIfNew(vertexId, neighborId) {
 
-    if (!vertices[edge.source]) {
-      vertices[edge.source] = {
-        neighbors: [edge.target]
+    if (!vertices[vertexId]) {
+
+      const vertex = {
+        id: vertexId,
+        index: vertexIndex,
       };
-    }
-    else {
-      vertices[edge.source].neighbors.push(edge.target);
-    }
 
-    if (!vertices[edge.target]) {
-      vertices[edge.target] = {
-        neighbors: [edge.source]
-      };
-    }
-    else {
-      vertices[edge.target].neighbors.push(edge.source);
+      vertices[vertexId] = vertex;
+      vertexArray.push(vertex);
+      vertexIndex++;
     }
   }
 
-  return [vertices, edges];
+  for (let i = 0; i < lines.length; i++) {
+
+    const line = lines[i];
+
+    // skip blank lines
+    if (line.length === 0) {
+      continue;
+    }
+
+    const [sourceId, targetId] = line.split(' ');
+
+    addIfNew(sourceId, targetId);
+    addIfNew(targetId, sourceId);
+
+    const edge = {
+      source: vertices[sourceId].index,
+      target: vertices[targetId].index,
+    };
+
+    edges.push(edge);
+  }
+
+  return [vertexArray, edges];
 }
 
 function createGraphFromLines(lines) {

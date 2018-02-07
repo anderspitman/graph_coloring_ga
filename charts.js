@@ -101,6 +101,7 @@ class Graph extends Chart {
     width,
     height,
     vertices,
+    edges,
   }) {
     super({ domElementId, width, height });
 
@@ -108,9 +109,18 @@ class Graph extends Chart {
       this.two.makeRectangle(width / 2, height / 2, width, height);
     background.fill = '#ededed';
 
-    console.log(vertices);
 
-    const sim = d3.forceSimulation();
+    const sim = d3.forceSimulation(vertices)
+     .force("charge", d3.forceManyBody())
+     .force("link", d3.forceLink(edges))
+     .force("center", d3.forceCenter());
+
+    sim.on('tick', () => {
+      console.log("tick");
+    });
+
+    console.log(vertices);
+    console.log(edges);
 
     this.two.update();
   }

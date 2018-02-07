@@ -24,12 +24,12 @@ describe('Graph', () => {
 
     it ("should have correct edges", () => {
 
-      assert.equal(graph.edges[0].source, 1);
-      assert.equal(graph.edges[0].target, 3);
-      assert.equal(graph.edges[1].source, 0);
-      assert.equal(graph.edges[1].target, 2);
-      assert.equal(graph.edges[2].source, 2);
-      assert.equal(graph.edges[2].target, 1);
+      assert.equal(graph.edges[0].source, 0);
+      assert.equal(graph.edges[0].target, 1);
+      assert.equal(graph.edges[1].source, 2);
+      assert.equal(graph.edges[1].target, 3);
+      assert.equal(graph.edges[2].source, 3);
+      assert.equal(graph.edges[2].target, 0);
     });
   });
 
@@ -60,11 +60,12 @@ describe('GA', () => {
 
     it ("works", () => {
       assert.equal(ga.fitness('abcd'), 1);
-      assert.equal(ga.fitness('abca'), 1);
-      assert(closeEnough(ga.fitness('aaca'),
+      assert(closeEnough(ga.fitness('abca'),
         0.66666));
-      assert(closeEnough(ga.fitness('aaab'),
+      assert(closeEnough(ga.fitness('aaca'),
         0.33333));
+      assert(closeEnough(ga.fitness('aaab'),
+        0.66666));
       assert(closeEnough(ga.fitness('aaaa'), 0));
     });
   });
