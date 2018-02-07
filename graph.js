@@ -4,7 +4,12 @@ function parseEdgeList(lines) {
   const edges = [];
 
   for (let line of lines) {
+
+    if (line.length === 0) {
+      continue;
+    }
     const edge = parseLine(line);
+    console.log(edge);
     edges.push(edge);
 
     if (!vertices[edge.source]) {

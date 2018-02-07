@@ -25,3 +25,9 @@
 * Todo:
     * Implement graph visualization
     * Implement diversity metric
+
+
+# 2018-02-07
+
+* Wasn't converging because I had a bug in my edgelist parsing that let
+  junk nodes through.

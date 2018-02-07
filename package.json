@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "browserify": "^15.2.0",
+    "d3-force": "^1.1.0",
     "mocha": "^5.0.0",
     "two.js": "^0.7.0-alpha.1",
     "webworkify": "^1.5.0"

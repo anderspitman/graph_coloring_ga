@@ -1,12 +1,7 @@
 const graphUtils = require('./graph.js');
 const GA = require('./genetic_algorithm.js');
 const axios = require('axios');
-//const ps = require('./pubsub.js');
 
-//axios.get('/sample_graph.g').then((response) => {
-//  console.log(response);
-////  main(response.data);
-//});
 
 module.exports = function(self) {
 
@@ -16,20 +11,18 @@ module.exports = function(self) {
     console.log(message.data);
 
     if (message.data.topic === 'ga_config') {
-      main(self, message.data.numGenerations, message.data.ga_text);
+      main(self, message.data.numGenerations,
+        message.data.numColors, message.data.edgeList);
     }
   };
 };
 
-function main(self, numGenerations, graphText) {
-
-  const lines = graphText.split('\n');
-  const numColors = Number(lines[0]);
-  const edgeList = lines.slice(1);
+function main(self, numGenerations, numColors, edgeList) {
 
   const graph = graphUtils.createGraphFromLines(edgeList);
 
   console.log(graph);
+  console.log(Object.keys(graph.vertices).length);
   console.log();
 
   console.log(numGenerations);

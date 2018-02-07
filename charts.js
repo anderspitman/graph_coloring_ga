@@ -1,4 +1,5 @@
 const Two = require('two.js');
+const d3 = require('d3-force');
 
 
 class Chart {
@@ -99,12 +100,17 @@ class Graph extends Chart {
     domElementId,
     width,
     height,
+    vertices,
   }) {
     super({ domElementId, width, height });
 
     const background =
       this.two.makeRectangle(width / 2, height / 2, width, height);
     background.fill = '#ededed';
+
+    console.log(vertices);
+
+    const sim = d3.forceSimulation();
 
     this.two.update();
   }

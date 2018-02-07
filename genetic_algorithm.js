@@ -182,7 +182,7 @@ class GraphColoringGA {
     const averageFitness = sum / this.population.length;
 
     //console.log("Average fitness: " + averageFitness);
-    console.log("Max fitness: " + maxFitness);
+    //console.log("Max fitness: " + maxFitness);
     //console.log("Max individual: " +  maxIndividual);
     this.sendMessage({
       topic: 'stats_update',

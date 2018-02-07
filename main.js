@@ -1,14 +1,32 @@
 const axios = require('axios');
 const work = require('webworkify');
+
+const graphUtils = require('./graph.js');
 const Charts = require('./charts.js');
 
 axios.get('/sample_graph.g').then((response) => {
   main(response.data);
 });
 
-function main(text) {
+function main(graphText) {
 
   const numGenerations = 200;
+
+  const lines = graphText.split('\n');
+  const numColors = Number(lines[0]);
+  const edgeList = lines.slice(1);
+  // TODO: making a duplicate graph here because apparently objects are
+  // serialized when sent to workers which means callbacks throw exceptions.
+  // find a cleaner way to do this
+  const graph = graphUtils.createGraphFromLines(edgeList);
+
+  const worker = work(require('./ga_worker.js'));
+  worker.postMessage({
+    topic: 'ga_config',
+    numGenerations,
+    numColors,
+    edgeList,
+  });
 
   const chartAvg = new Charts.ScatterPlot({
     domElementId: 'chart-avg',
@@ -31,16 +49,11 @@ function main(text) {
     domElementId: 'chart-graph',
     width: 500,
     height: 500,
+    vertices: Object.keys(graph.vertices),
+    edges: graph.edges.slice(),
   });
 
-  const worker = work(require('./ga_worker.js'));
-
-  worker.postMessage({
-    topic: 'ga_config',
-    numGenerations,
-    ga_text: text,
-  });
-
+  
   const avgFit = [];
   const maxFit = [];
 
