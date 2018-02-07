@@ -157,7 +157,7 @@ class GraphColoringGA {
       const newColor = ALPHABET[newColorIndex];
       mutated = replaceAt(individual, mutationIndex, newColor);
 
-      console.log(mutationIndex, individual, mutated);
+      //console.log(mutationIndex, individual, mutated);
     }
 
     return mutated;

@@ -22,3 +22,6 @@
 # 2018-02-06
 
 * Encoding needs to represent nodes, not edges
+* Todo:
+    * Implement graph visualization
+    * Implement diversity metric
