@@ -52,20 +52,20 @@ describe('GA', () => {
     graph: graph,
   });
 
-  describe('#fitnessForColoring', () => {
+  describe('#fitness', () => {
 
     it ("should exist", () => {
-      assert(ga.fitnessForColoring);
+      assert(ga.fitness);
     });
 
     it ("works", () => {
-      assert.equal(ga.fitnessForColoring('abcd'), 1);
-      assert.equal(ga.fitnessForColoring('abca'), 1);
-      assert(closeEnough(ga.fitnessForColoring('aaca'),
+      assert.equal(ga.fitness('abcd'), 1);
+      assert.equal(ga.fitness('abca'), 1);
+      assert(closeEnough(ga.fitness('aaca'),
         0.66666));
-      assert(closeEnough(ga.fitnessForColoring('aaab'),
+      assert(closeEnough(ga.fitness('aaab'),
         0.33333));
-      assert(closeEnough(ga.fitnessForColoring('aaaa'), 0));
+      assert(closeEnough(ga.fitness('aaaa'), 0));
     });
   });
 });
