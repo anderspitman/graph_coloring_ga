@@ -221,7 +221,7 @@ class Graph extends Chart {
   }
 }
 
-class DiversityPlot extends Chart {
+class DiversityPlot {
   constructor({
     domElementId,
     width,
@@ -230,34 +230,74 @@ class DiversityPlot extends Chart {
     maxValue,
   }) {
 
-    super({ domElementId, width, height });
+    this.width = width;
+    this.height = height;
 
-    const background =
-      this.two.makeRectangle(this.centerX, this.centerY, width, height);
-    background.fill = '#ededed';
+    this.centerX = this.width / 2;
+    this.centerY = this.height / 2;
+
+    this.elem = document.getElementById(domElementId);
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.elem.appendChild(this.canvas);
+
+    const ctx = this.canvas.getContext('2d');
+    this.ctx = ctx;
+
+    ctx.fillStyle = '#ededed';
+    ctx.fillRect(0, 0, width, height);
+
+    //const background =
+    //  this.two.makeRectangle(this.centerX, this.centerY, width, height);
+    //background.fill = '#ededed';
 
     const numPoints = 1000;
+    this.numGenerations = numGenerations;
 
-    this.bars = [];
-    for (let i = 0; i < numPoints; i++) {
-      const point = this.two.makeRectangle(0, this.centerY, 5, height);
-      point.fill = 'tomato';
-      point.opacity = '.1';
-      this.bars.push(point);
-    }
+    this.generationIndex = 0;
 
-    this.two.play();
+    //this.bars = [];
+    //for (let i = 0; i < numPoints; i++) {
+    //  const point = this.two.makeRectangle(0, this.centerY, 5, height);
+    //  point.fill = 'tomato';
+    //  point.opacity = '.1';
+    //  this.bars.push(point);
+    //}
+
+    //this.two.play();
   }
 
   appendGeneration(maxDiversityValue, diversityData) {
 
     diversityData.sort();
 
+    const ctx = this.ctx;
+
+    //ctx.clearRect(0, 0, this.width, this.height);
+
+    ctx.globalAlpha = 0.1;
+
+    ctx.fillStyle = COLORS[1];
+
+    const ySize = this.height / this.numGenerations;
+
+    const yPos = this.generationIndex * ySize;
+
     for (let i = 0; i < diversityData.length; i++) {
-      //const xPos = (diversityData[i] / maxDiversityValue) * this.width;
       const xPos = diversityData[i] * this.width;
-      this.bars[i].translation.set(xPos, this.centerY);
+      ctx.fillRect(xPos, yPos, 10, ySize);
     }
+
+    ctx.globalAlpha = 1.0;
+
+    ++this.generationIndex;
+
+    //for (let i = 0; i < diversityData.length; i++) {
+    //  //const xPos = (diversityData[i] / maxDiversityValue) * this.width;
+    //  const xPos = diversityData[i] * this.width;
+    //  this.bars[i].translation.set(xPos, this.centerY);
+    //}
   }
 }
 

@@ -55,8 +55,8 @@ function main(graphText) {
 
   const diversityPlot = new Charts.DiversityPlot({
     domElementId: 'chart-diversity',
-    width: 300,
-    height: 300,
+    width: 1280,
+    height: 720,
     numGenerations,
   });
   
