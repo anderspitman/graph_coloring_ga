@@ -36,6 +36,7 @@ function main(graphText) {
   });
 
   const chartMax = new Charts.ScatterPlot({
+    title: "Max Fitness",
     domElementId: 'chart-max',
     yMax: 1,
     maxPoints: numGenerations,
@@ -43,12 +44,14 @@ function main(graphText) {
   });
 
   const graphChart = new Charts.Graph({
+    title: "Graph Coloring",
     domElementId: 'chart-graph',
     vertices: graph.vertices.slice(),
     edges: graph.edges.slice(),
   });
 
   const diversityPlot = new Charts.DiversityPlot({
+    title: "Diversity",
     domElementId: 'chart-diversity',
     numGenerations,
   });

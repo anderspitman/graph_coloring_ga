@@ -1,6 +1,5 @@
 const Two = require('two.js');
-const d3Force = require('d3-force');
-const d3Scale = require('d3-scale');
+const d3 = require('d3');
 
 // colors taken from the fantastic Color Brewer: http://colorbrewer2.org
 const COLORS = [
@@ -32,12 +31,18 @@ class Chart {
 
     this.elem = document.getElementById(domElementId);
 
+    const text = d3.select(this.elem)
+      .append('div')
+        .attr('class', 'chart__title')
+        .text(title)
+
+    const textDim = text.node().getBoundingClientRect();
+    console.log(textDim);
+
     const dim = this.elem.getBoundingClientRect();
 
-    console.log(dim);
-
     this.width = dim.width;
-    this.height = dim.height;
+    this.height = dim.height - textDim.height;
 
     this.centerX = this.width / 2;
     this.centerY = this.height / 2;
@@ -53,7 +58,7 @@ class TwoJsChart extends Chart {
     domElementId,
   }) {
 
-    super({ domElementId });
+    super({ title, domElementId });
 
     const params = {
       width: this.width,
@@ -68,13 +73,14 @@ class TwoJsChart extends Chart {
 class ScatterPlot extends TwoJsChart {
 
   constructor({
+    title,
     domElementId,
     yMax,
     maxPoints,
     color,
   }) {
 
-    super({ domElementId });
+    super({ title, domElementId });
 
     this.yMax = yMax;
     this.color = color;
@@ -137,11 +143,12 @@ class ScatterPlot extends TwoJsChart {
 
 class Graph extends TwoJsChart {
   constructor({
+    title,
     domElementId,
     vertices,
     edges,
   }) {
-    super({ domElementId });
+    super({ title, domElementId });
 
     this.edges = edges;
 
@@ -168,10 +175,10 @@ class Graph extends TwoJsChart {
     });
 
 
-    const sim = d3Force.forceSimulation(vertices)
-     .force("charge", d3Force.forceManyBody().strength(-100))
-     .force("link", d3Force.forceLink(edges).distance(100))
-     .force("center", d3Force.forceCenter());
+    const sim = d3.forceSimulation(vertices)
+     .force("charge", d3.forceManyBody().strength(-100))
+     .force("link", d3.forceLink(edges).distance(100))
+     .force("center", d3.forceCenter());
 
     this.visEdges = [];
     for (let edge of edges) {
@@ -239,12 +246,13 @@ class Graph extends TwoJsChart {
 
 class DiversityPlot extends Chart {
   constructor({
+    title,
     domElementId,
     numGenerations,
     maxValue,
   }) {
 
-    super({ domElementId });
+    super({ title, domElementId });
 
     this.elem = document.getElementById(domElementId);
     this.canvas = document.createElement('canvas');
@@ -252,7 +260,7 @@ class DiversityPlot extends Chart {
     this.canvas.height = this.height;
     this.elem.appendChild(this.canvas);
 
-    //this.scale = d3Scale.scaleOrdinal(COLORS.slice(0, 4))
+    //this.scale = d3.scaleOrdinal(COLORS.slice(0, 4))
     //  .domain([0, 1]);
 
     const ctx = this.canvas.getContext('2d');
