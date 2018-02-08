@@ -26,20 +26,38 @@ const GRAPH_COLORS = [
 class Chart {
 
   constructor({
+    title,
     domElementId,
-    width,
-    height,
   }) {
-    this.width = width;
-    this.height = height;
+
+    this.elem = document.getElementById(domElementId);
+
+    const dim = this.elem.getBoundingClientRect();
+
+    console.log(dim);
+
+    this.width = dim.width;
+    this.height = dim.height;
 
     this.centerX = this.width / 2;
     this.centerY = this.height / 2;
 
-    this.elem = document.getElementById(domElementId);
+
+  }
+}
+
+
+class TwoJsChart extends Chart {
+  constructor({
+    title,
+    domElementId,
+  }) {
+
+    super({ domElementId });
+
     const params = {
-      width,
-      height,
+      width: this.width,
+      height: this.height,
       //type: Two.Types.webgl,
     };
 
@@ -47,19 +65,16 @@ class Chart {
   }
 }
 
-
-class ScatterPlot extends Chart {
+class ScatterPlot extends TwoJsChart {
 
   constructor({
     domElementId,
-    width,
-    height,
     yMax,
     maxPoints,
     color,
   }) {
 
-    super({ domElementId, width, height });
+    super({ domElementId });
 
     this.yMax = yMax;
     this.color = color;
@@ -68,7 +83,8 @@ class ScatterPlot extends Chart {
     this.points = [];
 
     const background =
-      this.two.makeRectangle(width / 2, height / 2, width, height);
+      this.two.makeRectangle(
+        this.width / 2, this.height / 2, this.width, this.height);
     background.fill = '#ededed';
 
     // pre-allocate points offscreen
@@ -119,20 +135,19 @@ class ScatterPlot extends Chart {
 }
 
 
-class Graph extends Chart {
+class Graph extends TwoJsChart {
   constructor({
     domElementId,
-    width,
-    height,
     vertices,
     edges,
   }) {
-    super({ domElementId, width, height });
+    super({ domElementId });
 
     this.edges = edges;
 
     const background =
-      this.two.makeRectangle(this.centerX, this.centerY, width, height);
+      this.two.makeRectangle(
+        this.centerX, this.centerY, this.width, this.height);
     background.fill = '#ededed';
 
     const group = this.two.makeGroup();
@@ -222,25 +237,19 @@ class Graph extends Chart {
   }
 }
 
-class DiversityPlot {
+class DiversityPlot extends Chart {
   constructor({
     domElementId,
-    width,
-    height,
     numGenerations,
     maxValue,
   }) {
 
-    this.width = width;
-    this.height = height;
-
-    this.centerX = this.width / 2;
-    this.centerY = this.height / 2;
+    super({ domElementId });
 
     this.elem = document.getElementById(domElementId);
     this.canvas = document.createElement('canvas');
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
     this.elem.appendChild(this.canvas);
 
     //this.scale = d3Scale.scaleOrdinal(COLORS.slice(0, 4))
@@ -249,27 +258,12 @@ class DiversityPlot {
     const ctx = this.canvas.getContext('2d');
     this.ctx = ctx;
 
-    ctx.fillStyle = '#ededed';
-    ctx.fillRect(0, 0, width, height);
-
-    //const background =
-    //  this.two.makeRectangle(this.centerX, this.centerY, width, height);
-    //background.fill = '#ededed';
+    ctx.strokeRect(0, 0, this.width, this.height);
 
     const numPoints = 1000;
     this.numGenerations = numGenerations;
 
     this.generationIndex = 0;
-
-    //this.bars = [];
-    //for (let i = 0; i < numPoints; i++) {
-    //  const point = this.two.makeRectangle(0, this.centerY, 5, height);
-    //  point.fill = 'tomato';
-    //  point.opacity = '.1';
-    //  this.bars.push(point);
-    //}
-
-    //this.two.play();
   }
 
   appendGeneration(diversityData, fitnessData) {

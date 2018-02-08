@@ -33,3 +33,10 @@
   junk nodes through.
 * Seems like it might be running much faster comparing integers instead of
   strings for node ids
+
+
+# 2018-02-08
+
+* Got diversity plot working. It's awesome
+* Use machine learning to predict whether the GA will be successful by looking
+  at the first few lines of diversity plot?

@@ -29,17 +29,14 @@ function main(graphText) {
   });
 
   const chartAvg = new Charts.ScatterPlot({
+    title: "Average Fitness",
     domElementId: 'chart-avg',
-    width: 300,
-    height: 300,
     yMax: 1,
     maxPoints: numGenerations,
   });
 
   const chartMax = new Charts.ScatterPlot({
     domElementId: 'chart-max',
-    width: 300,
-    height: 300,
     yMax: 1,
     maxPoints: numGenerations,
     color: Charts.COLORS[0],
@@ -47,16 +44,12 @@ function main(graphText) {
 
   const graphChart = new Charts.Graph({
     domElementId: 'chart-graph',
-    width: 300,
-    height: 300,
     vertices: graph.vertices.slice(),
     edges: graph.edges.slice(),
   });
 
   const diversityPlot = new Charts.DiversityPlot({
     domElementId: 'chart-diversity',
-    width: 900,
-    height: 300,
     numGenerations,
   });
   
