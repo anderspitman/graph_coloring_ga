@@ -53,8 +53,11 @@ class GraphColoringGA {
     for (let i = 0; i < this.individualSize; i++) {
 
       const maxColorValue = numColors - 1;
-      this.maxDiversityValue += Math.pow(maxColorValue, (i + 1));
+      this.maxDiversityValue += maxColorValue * Math.pow(this.numColors, i);
     }
+
+    console.log(this.maxDiversityValue);
+    console.log(Number.MAX_VALUE);
   }
 
   run() {
@@ -75,7 +78,7 @@ class GraphColoringGA {
       this.sendDiversity();
     }
 
-    console.log("done");
+    console.log("GA done");
   }
 
   doGeneration(index) {
@@ -278,8 +281,8 @@ class GraphColoringGA {
       }
     }
 
-    console.log("maxDiv: " + max);
-    console.log(maxIndividual);
+    //console.log("maxDiv: " + max);
+    //console.log(maxIndividual);
 
     this.sendMessage({
       topic: 'diversity_update',
@@ -295,7 +298,7 @@ class GraphColoringGA {
 
       const char = individual[i];
       const colorValue = COLOR_INDEX_MAP[char];
-      value += Math.pow(colorValue, (i + 1));
+      value += colorValue * Math.pow(this.numColors, i);
     }
 
     return value / this.maxDiversityValue;
