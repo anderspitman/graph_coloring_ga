@@ -54,10 +54,10 @@ class GraphColoringGA {
 
       const maxColorValue = numColors - 1;
       this.maxDiversityValue += maxColorValue * Math.pow(this.numColors, i);
-    }
 
-    console.log(this.maxDiversityValue);
-    console.log(Number.MAX_VALUE);
+      //console.log(this.maxDiversityValue);
+      //console.log(Number.MAX_VALUE);
+    }
   }
 
   run() {
@@ -75,7 +75,9 @@ class GraphColoringGA {
         break;
       }
 
-      this.sendDiversity();
+      if (this.maxDiversityValue !== Infinity) {
+        this.sendDiversity();
+      }
     }
 
     console.log("GA done");
