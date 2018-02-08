@@ -55,8 +55,8 @@ function main(graphText) {
 
   const diversityPlot = new Charts.DiversityPlot({
     domElementId: 'chart-diversity',
-    width: 1280,
-    height: 720,
+    width: 900,
+    height: 300,
     numGenerations,
   });
   
@@ -82,7 +82,8 @@ function main(graphText) {
 
       case 'diversity_update':
         diversityPlot.appendGeneration(
-          message.data.maxDiversityValue, message.data.diversity);
+          message.data.diversity,
+          message.data.fitness);
       break;
       //const elapsed = performance.now() - start;
 

@@ -47,6 +47,7 @@ class GraphColoringGA {
     this.selectionBias = 0.8;
 
     this.diversity = new Float32Array(this.populationSize);
+    this.populationFitness = new Float32Array(this.populationSize);
 
     this.maxDiversityValue = 0;
 
@@ -281,6 +282,8 @@ class GraphColoringGA {
         max = this.diversity[i];
         maxIndividual = this.population[i];
       }
+
+      this.populationFitness[i] = this.fitness(this.population[i]);
     }
 
     //console.log("maxDiv: " + max);
@@ -289,6 +292,7 @@ class GraphColoringGA {
     this.sendMessage({
       topic: 'diversity_update',
       diversity: this.diversity,
+      fitness: this.populationFitness,
       maxDiversityValue: this.maxDiversityValue,
     });
   }

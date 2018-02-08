@@ -1,5 +1,6 @@
 const Two = require('two.js');
-const d3 = require('d3-force');
+const d3Force = require('d3-force');
+const d3Scale = require('d3-scale');
 
 // colors taken from the fantastic Color Brewer: http://colorbrewer2.org
 const COLORS = [
@@ -152,10 +153,10 @@ class Graph extends Chart {
     });
 
 
-    const sim = d3.forceSimulation(vertices)
-     .force("charge", d3.forceManyBody().strength(-100))
-     .force("link", d3.forceLink(edges).distance(100))
-     .force("center", d3.forceCenter());
+    const sim = d3Force.forceSimulation(vertices)
+     .force("charge", d3Force.forceManyBody().strength(-100))
+     .force("link", d3Force.forceLink(edges).distance(100))
+     .force("center", d3Force.forceCenter());
 
     this.visEdges = [];
     for (let edge of edges) {
@@ -242,6 +243,9 @@ class DiversityPlot {
     this.canvas.height = height;
     this.elem.appendChild(this.canvas);
 
+    //this.scale = d3Scale.scaleOrdinal(COLORS.slice(0, 4))
+    //  .domain([0, 1]);
+
     const ctx = this.canvas.getContext('2d');
     this.ctx = ctx;
 
@@ -268,9 +272,12 @@ class DiversityPlot {
     //this.two.play();
   }
 
-  appendGeneration(maxDiversityValue, diversityData) {
+  appendGeneration(diversityData, fitnessData) {
 
-    diversityData.sort();
+    // TODO: figure out if there's any way sorting could make canvas run
+    // faster (or slower), ie from not having to move the ctx as far between
+    // draws? idk probably not an issue
+    //diversityData.sort();
 
     const ctx = this.ctx;
 
@@ -278,7 +285,7 @@ class DiversityPlot {
 
     ctx.globalAlpha = 0.1;
 
-    ctx.fillStyle = COLORS[1];
+    ctx.fillStyle = COLORS[3];
 
     const ySize = this.height / this.numGenerations;
 
@@ -286,18 +293,13 @@ class DiversityPlot {
 
     for (let i = 0; i < diversityData.length; i++) {
       const xPos = diversityData[i] * this.width;
-      ctx.fillRect(xPos, yPos, 10, ySize);
+      //ctx.fillStyle = this.scale(fitnessData[i]);
+      ctx.fillRect(xPos, yPos, 2, ySize);
     }
 
     ctx.globalAlpha = 1.0;
 
     ++this.generationIndex;
-
-    //for (let i = 0; i < diversityData.length; i++) {
-    //  //const xPos = (diversityData[i] / maxDiversityValue) * this.width;
-    //  const xPos = diversityData[i] * this.width;
-    //  this.bars[i].translation.set(xPos, this.centerY);
-    //}
   }
 }
 
