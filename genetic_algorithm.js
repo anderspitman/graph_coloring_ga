@@ -3,6 +3,12 @@
 const ALPHABET =
   'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789'; 
 
+const COLOR_INDEX_MAP = [];
+
+for (let i = 0; i < ALPHABET.length; i++) {
+  COLOR_INDEX_MAP[ALPHABET[i]] = i;
+}
+
 // from: https://stackoverflow.com/a/10784675/943814
 function replaceAt(s, n, t) {
     return s.substring(0, n) + t + s.substring(n + 1);
@@ -188,10 +194,22 @@ class GraphColoringGA {
       topic: 'stats_update',
       averageFitness,
       maxFitness,
-      maxIndividual
+      maxIndividual,
+      colorIndices: this.colorIndices(maxIndividual),
     });
 
     return maxFitness;
+  }
+
+  colorIndices(individual) {
+
+    const indices = [];
+
+    for (let colorChar of individual) {
+      indices.push(COLOR_INDEX_MAP[colorChar]);
+    }
+
+    return indices;
   }
 
   randomPopulation() {

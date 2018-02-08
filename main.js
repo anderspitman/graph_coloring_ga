@@ -10,7 +10,7 @@ axios.get('/sample_graph.g').then((response) => {
 
 function main(graphText) {
 
-  const numGenerations = 200;
+  const numGenerations = 1000;
 
   const lines = graphText.split('\n');
   const numColors = Number(lines[0]);
@@ -42,7 +42,7 @@ function main(graphText) {
     height: 500,
     yMax: 1,
     maxPoints: numGenerations,
-    color: 'tomato',
+    color: Charts.COLORS[0],
   });
 
   const graphChart = new Charts.Graph({
@@ -52,7 +52,6 @@ function main(graphText) {
     vertices: graph.vertices.slice(),
     edges: graph.edges.slice(),
   });
-
   
   const avgFit = [];
   const maxFit = [];
@@ -67,6 +66,8 @@ function main(graphText) {
 
     chartAvg.update(avgFit);
     chartMax.update(maxFit);
+
+    graphChart.updateColors(message.data.colorIndices);
 
     //const elapsed = performance.now() - start;
 
