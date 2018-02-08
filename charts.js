@@ -32,14 +32,14 @@ class Chart {
     this.width = width;
     this.height = height;
 
-    const elem = document.getElementById(domElementId);
+    this.elem = document.getElementById(domElementId);
     const params = {
       width,
       height,
       //type: Two.Types.webgl,
     };
 
-    this.two = new Two(params).appendTo(elem);
+    this.two = new Two(params).appendTo(this.elem);
   }
 }
 
@@ -125,21 +125,44 @@ class Graph extends Chart {
   }) {
     super({ domElementId, width, height });
 
+    this.centerX = this.width / 2;
+    this.centerY = this.height / 2;
+
+    this.edges = edges;
+
     const background =
-      this.two.makeRectangle(width / 2, height / 2, width, height);
+      this.two.makeRectangle(this.centerX, this.centerY, width, height);
     background.fill = '#ededed';
+
+    const group = this.two.makeGroup();
+    group.translation.set(this.centerX, this.centerY);
+
+    this.elem.addEventListener('wheel', (e) => {
+
+      const zoomFactor = 0.2;
+
+      if (e.deltaY > 0) {
+        group.scale -= zoomFactor * group.scale;
+      }
+      else {
+        group.scale += zoomFactor * group.scale;
+      }
+
+      this.two.update();
+    });
 
 
     const sim = d3.forceSimulation(vertices)
-     .force("charge", d3.forceManyBody())
-     .force("link", d3.forceLink(edges))
+     .force("charge", d3.forceManyBody().strength(-100))
+     .force("link", d3.forceLink(edges).distance(100))
      .force("center", d3.forceCenter());
 
     this.visEdges = [];
     for (let edge of edges) {
       const newEdge = this.two.makeLine(0, 0, 10, 10);
-      newEdge.fill = 'black';
+      newEdge.stroke = '#bbbbbb';
       this.visEdges.push(newEdge);
+      group.add(newEdge);
     }
 
     this.visVertices = [];
@@ -147,25 +170,23 @@ class Graph extends Chart {
       const newVertex = this.two.makeCircle(0, 0, 10);
       newVertex.fill = GRAPH_COLORS[0];
       this.visVertices.push(newVertex);
+      group.add(newVertex);
     }
-
+    
     sim.on('tick', () => {
 
       for (let i = 0; i < this.visEdges.length; i++) {
         const edge = this.visEdges[i];
-        const centerX = this.width / 2;
-        const centerY = this.height / 2;
         const [anchor1, anchor2] = edge.vertices;
-        anchor1.set(centerX + edges[i].source.x, centerY + edges[i].source.y);
-        anchor2.set(centerX + edges[i].target.x, centerY + edges[i].target.y);
+        // TODO: use this method for updating:
+        // https://github.com/jonobr1/two.js/issues/271
+        anchor1.set(edges[i].source.x, edges[i].source.y);
+        anchor2.set(edges[i].target.x, edges[i].target.y);
       }
 
       for (let i = 0; i < this.visVertices.length; i++) {
         const vertex = this.visVertices[i];
-        const centerX = this.width / 2;
-        const centerY = this.height / 2;
-        vertex.translation.set(
-          centerX + vertices[i].x, centerY + vertices[i].y);
+        vertex.translation.set(vertices[i].x, vertices[i].y);
       }
 
       this.two.update();
@@ -178,6 +199,22 @@ class Graph extends Chart {
 
     for (let i = 0; i < this.visVertices.length; i++) {
       this.visVertices[i].fill = GRAPH_COLORS[colorIndices[i]];
+    }
+
+    for (let i = 0; i < this.visEdges.length; i++) {
+
+      const sourceIndex = this.edges[i].source.index;
+      const targetIndex = this.edges[i].target.index;
+
+      if (this.visVertices[sourceIndex].fill ===
+          this.visVertices[targetIndex].fill) {
+        this.visEdges[i].stroke = 'red';
+        this.visEdges[i].linewidth = 5;
+      }
+      else {
+        this.visEdges[i].stroke = '#bbbbbb';
+        this.visEdges[i].linewidth = null;
+      }
     }
 
     this.two.update();
