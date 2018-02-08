@@ -5,13 +5,21 @@
       .chart {
         display: inline-block;
       }
+
+      .container {
+        margin: auto;
+        width: 80%;
+      }
     </style>
   </head>
 
   <body>
-    <div id='chart-avg' class='chart'></div>
-    <div id='chart-max' class='chart'></div>
-    <div id='chart-graph' class='chart'></div>
-    <script src='dist/bundle.js'></script>
+    <div class='container'>
+      <div id='chart-avg' class='chart'></div>
+      <div id='chart-max' class='chart'></div>
+      <div id='chart-graph' class='chart'></div>
+      <div id='chart-diversity' class='chart'></div>
+      <script src='dist/bundle.js'></script>
+    </div>
   </body>
 </html>

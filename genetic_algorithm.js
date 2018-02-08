@@ -45,6 +45,16 @@ class GraphColoringGA {
     this.crossoverRate = 0.7;
     // probability that more fit individual will be selected to be a parent
     this.selectionBias = 0.8;
+
+    this.diversity = new Float32Array(this.populationSize);
+
+    this.maxDiversityValue = 0;
+
+    for (let i = 0; i < this.individualSize; i++) {
+
+      const maxColorValue = numColors - 1;
+      this.maxDiversityValue += Math.pow(maxColorValue, (i + 1));
+    }
   }
 
   run() {
@@ -61,6 +71,8 @@ class GraphColoringGA {
         console.log("Optimum coloring found. Stopping");
         break;
       }
+
+      this.sendDiversity();
     }
 
     console.log("done");
@@ -252,6 +264,41 @@ class GraphColoringGA {
     }
 
     return sum/edges.length;
+  }
+
+  sendDiversity() {
+
+    let max = 0;
+    let maxIndividual = '';
+    for (let i = 0; i < this.population.length; i++) {
+      this.diversity[i] = this.individualAsNumber(this.population[i]);
+      if (this.diversity[i] > max) {
+        max = this.diversity[i];
+        maxIndividual = this.population[i];
+      }
+    }
+
+    console.log("maxDiv: " + max);
+    console.log(maxIndividual);
+
+    this.sendMessage({
+      topic: 'diversity_update',
+      diversity: this.diversity,
+      maxDiversityValue: this.maxDiversityValue,
+    });
+  }
+
+  individualAsNumber(individual) {
+
+    let value = 0;
+    for (let i = 0; i < individual.length; i++) {
+
+      const char = individual[i];
+      const colorValue = COLOR_INDEX_MAP[char];
+      value += Math.pow(colorValue, (i + 1));
+    }
+
+    return value / this.maxDiversityValue;
   }
 }
 

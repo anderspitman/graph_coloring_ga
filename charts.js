@@ -32,6 +32,9 @@ class Chart {
     this.width = width;
     this.height = height;
 
+    this.centerX = this.width / 2;
+    this.centerY = this.height / 2;
+
     this.elem = document.getElementById(domElementId);
     const params = {
       width,
@@ -125,9 +128,6 @@ class Graph extends Chart {
   }) {
     super({ domElementId, width, height });
 
-    this.centerX = this.width / 2;
-    this.centerY = this.height / 2;
-
     this.edges = edges;
 
     const background =
@@ -219,11 +219,52 @@ class Graph extends Chart {
 
     this.two.update();
   }
-};
+}
+
+class DiversityPlot extends Chart {
+  constructor({
+    domElementId,
+    width,
+    height,
+    numGenerations,
+    maxValue,
+  }) {
+
+    super({ domElementId, width, height });
+
+    const background =
+      this.two.makeRectangle(this.centerX, this.centerY, width, height);
+    background.fill = '#ededed';
+
+    const numPoints = 1000;
+
+    this.bars = [];
+    for (let i = 0; i < numPoints; i++) {
+      const point = this.two.makeRectangle(0, this.centerY, 5, height);
+      point.fill = 'tomato';
+      point.opacity = '.1';
+      this.bars.push(point);
+    }
+
+    this.two.play();
+  }
+
+  appendGeneration(maxDiversityValue, diversityData) {
+
+    diversityData.sort();
+
+    for (let i = 0; i < diversityData.length; i++) {
+      //const xPos = (diversityData[i] / maxDiversityValue) * this.width;
+      const xPos = diversityData[i] * this.width;
+      this.bars[i].translation.set(xPos, this.centerY);
+    }
+  }
+}
 
 module.exports = {
   ScatterPlot,
   Graph,
+  DiversityPlot,
   COLORS,
   GRAPH_COLORS,
 };

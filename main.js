@@ -10,7 +10,7 @@ axios.get('/sample_graph.g').then((response) => {
 
 function main(graphText) {
 
-  const numGenerations = 1000;
+  const numGenerations = 200;
 
   const lines = graphText.split('\n');
   const numColors = Number(lines[0]);
@@ -30,16 +30,16 @@ function main(graphText) {
 
   const chartAvg = new Charts.ScatterPlot({
     domElementId: 'chart-avg',
-    width: 500,
-    height: 500,
+    width: 300,
+    height: 300,
     yMax: 1,
     maxPoints: numGenerations,
   });
 
   const chartMax = new Charts.ScatterPlot({
     domElementId: 'chart-max',
-    width: 500,
-    height: 500,
+    width: 300,
+    height: 300,
     yMax: 1,
     maxPoints: numGenerations,
     color: Charts.COLORS[0],
@@ -47,10 +47,17 @@ function main(graphText) {
 
   const graphChart = new Charts.Graph({
     domElementId: 'chart-graph',
-    width: 500,
-    height: 500,
+    width: 300,
+    height: 300,
     vertices: graph.vertices.slice(),
     edges: graph.edges.slice(),
+  });
+
+  const diversityPlot = new Charts.DiversityPlot({
+    domElementId: 'chart-diversity',
+    width: 300,
+    height: 300,
+    numGenerations,
   });
   
   const avgFit = [];
@@ -61,20 +68,29 @@ function main(graphText) {
   worker.addEventListener('message', (message) => {
     //const start = performance.now();
 
-    avgFit.push(message.data.averageFitness);
-    maxFit.push(message.data.maxFitness);
+    switch(message.data.topic) {
 
-    chartAvg.update(avgFit);
-    chartMax.update(maxFit);
+      case 'stats_update':
+        avgFit.push(message.data.averageFitness);
+        maxFit.push(message.data.maxFitness);
 
-    graphChart.updateColors(message.data.colorIndices);
+        chartAvg.update(avgFit);
+        chartMax.update(maxFit);
 
-    //const elapsed = performance.now() - start;
+        graphChart.updateColors(message.data.colorIndices);
+      break;
 
-    //if (elapsed > max) {
-    //  max = elapsed;
-    //}
-    //console.log("elapsed: " + elapsed);
-    //console.log("max: " + max);
+      case 'diversity_update':
+        diversityPlot.appendGeneration(
+          message.data.maxDiversityValue, message.data.diversity);
+      break;
+      //const elapsed = performance.now() - start;
+
+      //if (elapsed > max) {
+      //  max = elapsed;
+      //}
+      //console.log("elapsed: " + elapsed);
+      //console.log("max: " + max);
+    }
   });
 }
