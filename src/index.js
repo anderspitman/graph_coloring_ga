@@ -4,7 +4,7 @@ const work = require('webworkify');
 const graphUtils = require('./graph.js');
 const Charts = require('./charts.js');
 
-axios.get('/sample_graph.g').then((response) => {
+axios.get('/data/sample_graph.g').then((response) => {
   main(response.data);
 });
 

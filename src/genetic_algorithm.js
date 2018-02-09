@@ -86,7 +86,7 @@ class GraphColoringGA {
 
   doGeneration(index) {
 
-    const newPopulation = [];
+    let newPopulation = [];
 
     while (newPopulation.length < this.population.length) {
 
