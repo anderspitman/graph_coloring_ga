@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "test": "mocha",
-    "build": "browserify src/index.js -o dist/bundle.js"
+    "build": "browserify src/index.js -o dist/bundle.js",
+    "build-watch": "watchify src/index.js -o dist/bundle.js -v"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "webworkify": "^1.5.0"
   },
   "devDependencies": {
+    "watchify": "^3.10.0",
     "webpack": "^3.10.0"
   }
 }

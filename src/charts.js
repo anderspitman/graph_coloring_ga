@@ -88,9 +88,20 @@ class ScatterPlot extends TwoJsChart {
     this.data = [];
     this.points = [];
 
+    this.margins = {
+      left: 40,
+      right: 40,
+      top: 40,
+      bottom: 40,
+    };
+
     const background =
       this.two.makeRectangle(
-        this.width / 2, this.height / 2, this.width, this.height);
+        this.width / 2,
+        this.height / 2,
+        this.width - this.margins.left - this.margins.right,
+        this.height - this.margins.top - this.margins.bottom);
+
     background.fill = '#ededed';
 
     // pre-allocate points offscreen
@@ -130,10 +141,13 @@ class ScatterPlot extends TwoJsChart {
       const point = this.points[i];
 
       const xRatio = i / this.data.length;
-      const xPos = xRatio * this.width;
+      const xPos = this.margins.left +
+        (xRatio * (this.width - this.margins.left - this.margins.right));
       const yRatio = this.data[i] / this.yMax;
       // y is inverted
-      const yPos = this.height - (yRatio * this.height);
+      const yPos = this.height -
+        (this.margins.top +
+        (yRatio * (this.height - this.margins.top - this.margins.bottom)));
 
       point.translation.set(xPos, yPos);
     }
