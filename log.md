@@ -45,3 +45,11 @@
     * Visualize where the max fitness is in the search space
         * possible track across runs
     * Add a histogram of the diversity distribution
+
+
+# 2018-02-09
+
+* For diversity visualization for numbers that are too large, should be able
+  to "bin" it by look at just the top n bits, and putting everything that falls
+  under that value into the same bin. It's more coarse, but for large numbers
+  you wouldn't be able to see it anyway.

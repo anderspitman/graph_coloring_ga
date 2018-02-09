@@ -10,7 +10,7 @@ axios.get('/data/sample_graph.g').then((response) => {
 
 function main(graphText) {
 
-  const numGenerations = 200;
+  const numGenerations = 2000;
 
   const lines = graphText.split('\n');
   const numColors = Number(lines[0]);

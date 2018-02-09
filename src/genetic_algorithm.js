@@ -46,15 +46,30 @@ class GraphColoringGA {
     // probability that more fit individual will be selected to be a parent
     this.selectionBias = 0.8;
 
-    this.diversity = new Float32Array(this.populationSize);
+    this.diversity = new Float64Array(this.populationSize);
     this.populationFitness = new Float32Array(this.populationSize);
 
     this.maxDiversityValue = 0;
+    // larger strings can easily require ginormous numbers to encode. This
+    // variable limits it to only the max "n bits". Basically accomplishes
+    // a sort of binning, since we can't have an infinite number of bins,
+    // eventually we have to throw everything close to each other into the
+    // same bins.
+    this.maxDiversityIndex = 0;
 
     for (let i = 0; i < this.individualSize; i++) {
 
       const maxColorValue = numColors - 1;
-      this.maxDiversityValue += maxColorValue * Math.pow(this.numColors, i);
+      const nextMax = 
+        this.maxDiversityValue + maxColorValue * Math.pow(this.numColors, i);
+
+      if (nextMax === Infinity) {
+        break;
+      }
+      else {
+        this.maxDiversityValue = nextMax;
+        ++this.maxDiversityIndex;
+      }
 
       //console.log(this.maxDiversityValue);
       //console.log(Number.MAX_VALUE);
@@ -76,9 +91,7 @@ class GraphColoringGA {
         break;
       }
 
-      if (this.maxDiversityValue !== Infinity) {
-        this.sendDiversity();
-      }
+      this.sendDiversity();
     }
 
     console.log("GA done");
@@ -288,7 +301,8 @@ class GraphColoringGA {
     let max = 0;
     let maxIndividual = '';
     for (let i = 0; i < this.population.length; i++) {
-      this.diversity[i] = this.individualAsNumber(this.population[i]);
+      this.diversity[i] = this.individualDiversity(this.population[i]);
+
       if (this.diversity[i] > max) {
         max = this.diversity[i];
         maxIndividual = this.population[i];
@@ -304,21 +318,26 @@ class GraphColoringGA {
       topic: 'diversity_update',
       diversity: this.diversity,
       fitness: this.populationFitness,
-      maxDiversityValue: this.maxDiversityValue,
     });
   }
 
-  individualAsNumber(individual) {
+  individualDiversity(individual) {
 
     let value = 0;
-    for (let i = 0; i < individual.length; i++) {
+    for (let i = 0; i < this.maxDiversityIndex; i++) {
 
       const char = individual[i];
       const colorValue = COLOR_INDEX_MAP[char];
       value += colorValue * Math.pow(this.numColors, i);
     }
 
-    return value / this.maxDiversityValue;
+    const diversity = value / this.maxDiversityValue;
+
+    if (diversity === Infinity) {
+      console.log("WARNING: infinite diversity detected");
+    }
+
+    return diversity;
   }
 }
 

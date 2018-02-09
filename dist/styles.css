@@ -21,6 +21,10 @@
     left: 0;
 }
 
+.chart__axis-label {
+    font-family: Arial;
+}
+
 #chart-diversity {
     /*
     width: 30%;

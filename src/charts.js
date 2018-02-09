@@ -109,7 +109,7 @@ class ScatterPlot extends TwoJsChart {
     const pointSize = 2;
 
     this.data = [];
-    this.points = [];
+    //this.points = [];
 
     const background =
       this.two.makeRectangle(
@@ -169,6 +169,7 @@ class ScatterPlot extends TwoJsChart {
     // yLabel
     axesContainer 
       .append("text")
+        .attr("class", "chart__axis-label")
         .attr("transform", "rotate(-90)")
         .attr("x", -(this.margins.top + (this.adjustedHeight() / 2)))
         .attr("y", 15)
@@ -178,21 +179,22 @@ class ScatterPlot extends TwoJsChart {
     // xLabel
     axesContainer 
       .append("text")
-        //.attr("transform", "rotate(-90)")
+        .attr("class", "chart__axis-label")
         .attr("x", this.margins.left + (this.adjustedWidth() / 2))
         .attr("y", this.margins.top + this.adjustedHeight() + 35)
         .text(xLabel)
         .style("text-anchor", "middle")
 
-       // pre-allocate points offscreen
-    for (let i = 0; i < maxPoints; i++) {
-      const point =
-        this.two.makeCircle(this.width + 100, this.height + 100, 2);
-      point.fill = this.color ? this.color : COLORS[1];
-      point.stroke = point.fill;
+    // TODO: only used with the old render function
+    // pre-allocate points offscreen
+    //for (let i = 0; i < maxPoints; i++) {
+    //  const point =
+    //    this.two.makeCircle(this.width + 100, this.height + 100, 2);
+    //  point.fill = this.color ? this.color : COLORS[1];
+    //  point.stroke = point.fill;
 
-      this.points.push(point);
-    }
+    //  this.points.push(point);
+    //}
 
     //this.two.bind('update', () => {
     //}).play();
