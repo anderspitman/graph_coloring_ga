@@ -40,3 +40,8 @@
 * Got diversity plot working. It's awesome
 * Use machine learning to predict whether the GA will be successful by looking
   at the first few lines of diversity plot?
+* Todo
+    * Track % of search space searched
+    * Visualize where the max fitness is in the search space
+        * possible track across runs
+    * Add a histogram of the diversity distribution
