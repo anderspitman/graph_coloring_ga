@@ -80,6 +80,7 @@ class ScatterPlot extends TwoJsChart {
     domElementId,
     yMax,
     maxPoints,
+    numVariables,
     color,
     xLabel,
     yLabel,
@@ -102,11 +103,44 @@ class ScatterPlot extends TwoJsChart {
       .range([this.margins.left, this.width - this.margins.right])
 
     this.yScale = d3.scaleLinear()
-      .domain([0, 1])
+      .domain([0, yMax])
       .range([this.height - this.margins.bottom, this.margins.top])
+
+    const pointSize = 2;
 
     this.data = [];
     this.points = [];
+
+    const background =
+      this.two.makeRectangle(
+        this.margins.left + (this.adjustedWidth()/ 2),
+        this.margins.top + (this.adjustedHeight() / 2),
+        this.adjustedWidth(),
+        this.adjustedHeight());
+
+    background.fill = '#ededed';
+    background.noStroke();
+
+
+    this.allData = [];
+    this.allDataSymbols = [];
+    this.allDataIndex = 0;
+    for (let i = 0; i < numVariables; i++) {
+      this.allData.push(new Float32Array(maxPoints));
+      this.allDataSymbols.push([]);
+
+      for (let j = 0; j < maxPoints; j++) {
+        // initially render off-screen
+        const point = this.two.makeCircle(-100, -100, pointSize);
+        point.fill = COLORS[i];
+        point.stroke = point.fill;
+        this.allDataSymbols[i].push(point);
+      }
+
+    }
+
+    console.log(this.allData);
+    console.log(this.allDataSymbols);
 
     const axesContainer = this.container
       .append('svg')
@@ -150,17 +184,7 @@ class ScatterPlot extends TwoJsChart {
         .text(xLabel)
         .style("text-anchor", "middle")
 
-    const background =
-      this.two.makeRectangle(
-        this.margins.left + (this.adjustedWidth()/ 2),
-        this.margins.top + (this.adjustedHeight() / 2),
-        this.adjustedWidth(),
-        this.adjustedHeight());
-
-    background.fill = '#ededed';
-    background.noStroke();
-
-    // pre-allocate points offscreen
+       // pre-allocate points offscreen
     for (let i = 0; i < maxPoints; i++) {
       const point =
         this.two.makeCircle(this.width + 100, this.height + 100, 2);
@@ -188,14 +212,19 @@ class ScatterPlot extends TwoJsChart {
 
     for (let i = this.data.length; i < data.length; i++ ) {
       this.data.push(data[i]);
-      //const newPoint = this.two.makeCircle(0, 0, 2);
-      //newPoint.fill = 'steelblue';
-      //newPoint.stroke = 'steelblue';
-
-      //this.points.push(newPoint);
     }
 
     this.render();
+  }
+
+  addPoints(points) {
+
+    for (let i = 0; i < this.allData.length; i++) {
+      this.allData[i][this.allDataIndex] = points[i];
+    }
+    ++this.allDataIndex;
+
+    this.addPointsRender();
   }
 
   render() {
@@ -216,6 +245,17 @@ class ScatterPlot extends TwoJsChart {
       const yPos = this.yScale(this.data[i]);
 
       point.translation.set(xPos, yPos);
+    }
+  }
+
+  addPointsRender() {
+
+    const lastAddedIndex = this.allDataIndex - 1;
+
+    for (let i = 0; i < this.allData.length; i++) {
+      const xPos = this.xScale(lastAddedIndex);
+      const yPos = this.yScale(this.allData[i][lastAddedIndex]);
+      this.allDataSymbols[i][lastAddedIndex].translation.set(xPos, yPos);
     }
   }
 }
@@ -348,7 +388,6 @@ class DiversityPlot extends Chart {
 
     ctx.strokeRect(0, 0, this.width, this.height);
 
-    const numPoints = 1000;
     this.numGenerations = numGenerations;
 
     this.generationIndex = 0;

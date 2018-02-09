@@ -57,6 +57,16 @@ function main(graphText) {
     color: Charts.COLORS[2],
   });
 
+  const comboChart = new Charts.ScatterPlot({
+    title: "Fitness",
+    xLabel: "Generation",
+    yLabel: "Fitness",
+    domElementId: 'chart-combo',
+    yMax: 1,
+    maxPoints: numGenerations,
+    numVariables: 3,
+  });
+
   const graphChart = new Charts.Graph({
     title: "Graph Coloring",
     domElementId: 'chart-graph',
@@ -89,6 +99,12 @@ function main(graphText) {
         chartAvg.update(avgFit);
         chartMax.update(maxFit);
         chartMin.update(minFit);
+
+        comboChart.addPoints([
+          message.data.maxFitness,
+          message.data.averageFitness,
+          message.data.minFitness,
+        ]);
 
         graphChart.updateColors(message.data.colorIndices);
       break;
