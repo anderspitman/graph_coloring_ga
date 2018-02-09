@@ -30,6 +30,8 @@ function main(graphText) {
 
   const chartAvg = new Charts.ScatterPlot({
     title: "Average Fitness",
+    xLabel: "Generation",
+    yLabel: "Fitness",
     domElementId: 'chart-avg',
     yMax: 1,
     maxPoints: numGenerations,
@@ -37,6 +39,8 @@ function main(graphText) {
 
   const chartMax = new Charts.ScatterPlot({
     title: "Max Fitness",
+    xLabel: "Generation",
+    yLabel: "Fitness",
     domElementId: 'chart-max',
     yMax: 1,
     maxPoints: numGenerations,

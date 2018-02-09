@@ -81,6 +81,8 @@ class ScatterPlot extends TwoJsChart {
     yMax,
     maxPoints,
     color,
+    xLabel,
+    yLabel,
   }) {
 
     super({ title, domElementId });
@@ -113,33 +115,50 @@ class ScatterPlot extends TwoJsChart {
         .attr('height', this.height)
 
     const xAxis = d3.axisBottom(this.xScale);
-    const yAxis = d3.axisLeft(this.yScale);
-    const yAxisRight = d3.axisRight(this.yScale);
-
     axesContainer
       .append('g')
         .attr("transform", "translate(0,"+(this.height-this.margins.bottom)+")")
         .call(xAxis)
 
+    const yAxisLeft = d3.axisLeft(this.yScale);
     axesContainer
       .append('g')
         .attr("transform", "translate("+(this.margins.left)+")")
-        .call(yAxis)
+        .call(yAxisLeft)
 
+    const yAxisRight = d3.axisRight(this.yScale);
     axesContainer
       .append('g')
         .attr("transform", "translate("+(this.width-this.margins.right)+")")
         .call(yAxisRight)
 
-    //const background =
-    //  this.two.makeRectangle(
-    //    this.margins.left + (this.adjustedWidth()/ 2),
-    //    this.margins.top + (this.adjustedHeight() / 2),
-    //    this.adjustedWidth(),
-    //    this.adjustedHeight());
+    // yLabel
+    axesContainer 
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -(this.margins.top + (this.adjustedHeight() / 2)))
+        .attr("y", 15)
+        .text(yLabel)
+        .style("text-anchor", "middle")
 
-    //background.fill = '#ededed';
-    //background.noStroke();
+    // xLabel
+    axesContainer 
+      .append("text")
+        //.attr("transform", "rotate(-90)")
+        .attr("x", this.margins.left + (this.adjustedWidth() / 2))
+        .attr("y", this.margins.top + this.adjustedHeight() + 35)
+        .text(xLabel)
+        .style("text-anchor", "middle")
+
+    const background =
+      this.two.makeRectangle(
+        this.margins.left + (this.adjustedWidth()/ 2),
+        this.margins.top + (this.adjustedHeight() / 2),
+        this.adjustedWidth(),
+        this.adjustedHeight());
+
+    background.fill = '#ededed';
+    background.noStroke();
 
     // pre-allocate points offscreen
     for (let i = 0; i < maxPoints; i++) {
@@ -185,14 +204,16 @@ class ScatterPlot extends TwoJsChart {
 
       const point = this.points[i];
 
-      const xRatio = i / this.data.length;
-      const xPos = this.margins.left +
-        (xRatio * (this.width - this.margins.left - this.margins.right));
-      const yRatio = this.data[i] / this.yMax;
-      // y is inverted
-      const yPos = this.height -
-        (this.margins.top +
-        (yRatio * (this.height - this.margins.top - this.margins.bottom)));
+      //const xRatio = i / this.data.length;
+      //const xPos = this.margins.left +
+      //  (xRatio * (this.width - this.margins.left - this.margins.right));
+      const xPos = this.xScale(i);
+      //const yRatio = this.data[i] / this.yMax;
+      //// y is inverted
+      //const yPos = this.height -
+      //  (this.margins.top +
+      //  (yRatio * (this.height - this.margins.top - this.margins.bottom)));
+      const yPos = this.yScale(this.data[i]);
 
       point.translation.set(xPos, yPos);
     }
