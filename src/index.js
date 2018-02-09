@@ -28,40 +28,11 @@ function main(graphText) {
     edgeList,
   });
 
-  const chartAvg = new Charts.ScatterPlot({
-    title: "Average Fitness",
-    xLabel: "Generation",
-    yLabel: "Fitness",
-    domElementId: 'chart-avg',
-    yMax: 1,
-    maxPoints: numGenerations,
-  });
-
-  const chartMax = new Charts.ScatterPlot({
-    title: "Max Fitness",
-    xLabel: "Generation",
-    yLabel: "Fitness",
-    domElementId: 'chart-max',
-    yMax: 1,
-    maxPoints: numGenerations,
-    color: Charts.COLORS[0],
-  });
-
-  const chartMin = new Charts.ScatterPlot({
-    title: "Min Fitness",
-    xLabel: "Generation",
-    yLabel: "Fitness",
-    domElementId: 'chart-min',
-    yMax: 1,
-    maxPoints: numGenerations,
-    color: Charts.COLORS[2],
-  });
-
-  const comboChart = new Charts.ScatterPlot({
+  const statsChart = new Charts.ScatterPlot({
     title: "Fitness",
     xLabel: "Generation",
     yLabel: "Fitness",
-    domElementId: 'chart-combo',
+    domElementId: 'chart-stats',
     yMax: 1,
     maxPoints: numGenerations,
     numVariables: 3,
@@ -80,27 +51,14 @@ function main(graphText) {
     numGenerations,
   });
   
-  const avgFit = [];
-  const maxFit = [];
-  const minFit = [];
-
-  //let max = 0;
-
   worker.addEventListener('message', (message) => {
     //const start = performance.now();
 
     switch(message.data.topic) {
 
       case 'stats_update':
-        avgFit.push(message.data.averageFitness);
-        maxFit.push(message.data.maxFitness);
-        minFit.push(message.data.minFitness);
 
-        chartAvg.update(avgFit);
-        chartMax.update(maxFit);
-        chartMin.update(minFit);
-
-        comboChart.addPoints([
+        statsChart.addPoints([
           message.data.maxFitness,
           message.data.averageFitness,
           message.data.minFitness,

@@ -1,11 +1,14 @@
 .chart {
     width: 32%;
-    height: 60vh;
+    height: 500px;
     display: inline-block;
 }
 
 .chart__title {
     text-align: center;
+    font-weight: bold;
+    font-size: 14pt;
+    font-family: Arial;
 }
 
 .chart__container {
@@ -19,8 +22,10 @@
 }
 
 #chart-diversity {
-    width: 60%;
-    height: 48vh;
+    /*
+    width: 30%;
+    height: 500px;
+    */
 }
 
 .container {
