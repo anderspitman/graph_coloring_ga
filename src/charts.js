@@ -36,13 +36,16 @@ class Chart {
         .attr('class', 'chart__title')
         .text(title)
 
-    const textDim = text.node().getBoundingClientRect();
-    console.log(textDim);
+    this.container = d3.select(this.elem)
+      .append('div')
+      .attr('class', 'chart__container')
+
+    this.titleDim = text.node().getBoundingClientRect();
 
     const dim = this.elem.getBoundingClientRect();
 
     this.width = dim.width;
-    this.height = dim.height - textDim.height;
+    this.height = dim.height - this.titleDim.height;
 
     this.centerX = this.width / 2;
     this.centerY = this.height / 2;
@@ -66,7 +69,7 @@ class TwoJsChart extends Chart {
       //type: Two.Types.webgl,
     };
 
-    this.two = new Two(params).appendTo(this.elem);
+    this.two = new Two(params).appendTo(this.container.node());
   }
 }
 
@@ -85,24 +88,58 @@ class ScatterPlot extends TwoJsChart {
     this.yMax = yMax;
     this.color = color;
 
+    this.margins = {
+      left: 45,
+      right: 30,
+      top: 10,
+      bottom: 45,
+    };
+
+    this.xScale = d3.scaleLinear()
+      .domain([0, maxPoints])
+      .range([this.margins.left, this.width - this.margins.right])
+
+    this.yScale = d3.scaleLinear()
+      .domain([0, 1])
+      .range([this.height - this.margins.bottom, this.margins.top])
+
     this.data = [];
     this.points = [];
 
-    this.margins = {
-      left: 40,
-      right: 40,
-      top: 40,
-      bottom: 40,
-    };
+    const axesContainer = this.container
+      .append('svg')
+        .attr('class', 'chart__axes-container')
+        .attr('width', this.width)
+        .attr('height', this.height)
 
-    const background =
-      this.two.makeRectangle(
-        this.width / 2,
-        this.height / 2,
-        this.width - this.margins.left - this.margins.right,
-        this.height - this.margins.top - this.margins.bottom);
+    const xAxis = d3.axisBottom(this.xScale);
+    const yAxis = d3.axisLeft(this.yScale);
+    const yAxisRight = d3.axisRight(this.yScale);
 
-    background.fill = '#ededed';
+    axesContainer
+      .append('g')
+        .attr("transform", "translate(0,"+(this.height-this.margins.bottom)+")")
+        .call(xAxis)
+
+    axesContainer
+      .append('g')
+        .attr("transform", "translate("+(this.margins.left)+")")
+        .call(yAxis)
+
+    axesContainer
+      .append('g')
+        .attr("transform", "translate("+(this.width-this.margins.right)+")")
+        .call(yAxisRight)
+
+    //const background =
+    //  this.two.makeRectangle(
+    //    this.margins.left + (this.adjustedWidth()/ 2),
+    //    this.margins.top + (this.adjustedHeight() / 2),
+    //    this.adjustedWidth(),
+    //    this.adjustedHeight());
+
+    //background.fill = '#ededed';
+    //background.noStroke();
 
     // pre-allocate points offscreen
     for (let i = 0; i < maxPoints; i++) {
@@ -118,6 +155,14 @@ class ScatterPlot extends TwoJsChart {
     //}).play();
     this.two.play();
 
+  }
+
+  adjustedWidth() {
+    return this.width - this.margins.left - this.margins.right;
+  }
+
+  adjustedHeight() {
+    return this.height - this.margins.top - this.margins.bottom;
   }
 
   update(data) {
