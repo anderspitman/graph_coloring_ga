@@ -1,6 +1,6 @@
 .chart {
     width: 32%;
-    height: 48vh;
+    height: 60vh;
     display: inline-block;
 }
 
@@ -19,7 +19,7 @@
 }
 
 #chart-diversity {
-    width: 100%;
+    width: 60%;
     height: 48vh;
 }
 

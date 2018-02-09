@@ -47,6 +47,16 @@ function main(graphText) {
     color: Charts.COLORS[0],
   });
 
+  const chartMin = new Charts.ScatterPlot({
+    title: "Min Fitness",
+    xLabel: "Generation",
+    yLabel: "Fitness",
+    domElementId: 'chart-min',
+    yMax: 1,
+    maxPoints: numGenerations,
+    color: Charts.COLORS[2],
+  });
+
   const graphChart = new Charts.Graph({
     title: "Graph Coloring",
     domElementId: 'chart-graph',
@@ -62,6 +72,7 @@ function main(graphText) {
   
   const avgFit = [];
   const maxFit = [];
+  const minFit = [];
 
   //let max = 0;
 
@@ -73,9 +84,11 @@ function main(graphText) {
       case 'stats_update':
         avgFit.push(message.data.averageFitness);
         maxFit.push(message.data.maxFitness);
+        minFit.push(message.data.minFitness);
 
         chartAvg.update(avgFit);
         chartMax.update(maxFit);
+        chartMin.update(minFit);
 
         graphChart.updateColors(message.data.colorIndices);
       break;

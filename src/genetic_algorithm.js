@@ -190,8 +190,12 @@ class GraphColoringGA {
   maxFitness() {
 
     let maxFitness = 0;
+    let minFitness = 1.0;
+
     let sum = 0;
     let maxIndividual = null;
+    let minIndividual = null;
+
     for (let individual of this.population) {
       const fitness = this.fitness(individual)
       sum += fitness;
@@ -200,6 +204,11 @@ class GraphColoringGA {
       if (fitness > maxFitness) {
         maxFitness = fitness;
         maxIndividual = individual;
+      }
+
+      if (fitness < minFitness) {
+        minFitness = fitness;
+        minIndividual = individual;
       }
     }
 
@@ -213,6 +222,8 @@ class GraphColoringGA {
       averageFitness,
       maxFitness,
       maxIndividual,
+      minFitness,
+      minIndividual,
       colorIndices: this.colorIndices(maxIndividual),
     });
 
