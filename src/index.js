@@ -6,10 +6,10 @@ const graphUtils = require('./graph.js');
 const Charts = require('./charts.js');
 
 axios.get('/data/sample_graph.g').then((response) => {
-  main(response.data);
+  runGA(response.data);
 });
 
-function main(graphText) {
+function runGA(graphText) {
 
   const numGenerations = 500;
 

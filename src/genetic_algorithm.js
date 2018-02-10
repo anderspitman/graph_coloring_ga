@@ -1,4 +1,5 @@
 const utils = require('./utils.js');
+const neut = require('./neutral_coloring.js');
 
 const ALPHABET =
   'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789'; 
@@ -7,11 +8,6 @@ const COLOR_INDEX_MAP = [];
 
 for (let i = 0; i < ALPHABET.length; i++) {
   COLOR_INDEX_MAP[ALPHABET[i]] = i;
-}
-
-// from: https://stackoverflow.com/a/10784675/943814
-function replaceAt(s, n, t) {
-    return s.substring(0, n) + t + s.substring(n + 1);
 }
 
 // from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
@@ -104,6 +100,23 @@ class GraphColoringGA {
 
       if (maxFitness === 1) {
         console.log("Optimum coloring found. Stopping");
+
+        const oneStepIndividuals =
+          neut.run(ALPHABET, COLOR_INDEX_MAP, maxIndividual, this.numColors);
+
+        let numValid = 0;
+        for (let i = 0; i < oneStepIndividuals.length; i++) {
+          const indy = oneStepIndividuals[i];
+          const fitness = this.fitness(indy);
+
+          if (fitness == 1.0) {
+            ++numValid;
+          }
+        }
+
+        console.log("Valid 1-step for individual " + maxIndividual + ": ");
+        console.log(numValid / oneStepIndividuals.length);
+
         break;
       }
     }
@@ -215,7 +228,7 @@ class GraphColoringGA {
       const oldColor = getRandomElement(individual);
       const newColorIndex = getRandomInt(0, this.numColors);
       const newColor = ALPHABET[newColorIndex];
-      mutated = replaceAt(individual, mutationIndex, newColor);
+      mutated = utils.replaceAt(individual, mutationIndex, newColor);
 
       //console.log(mutationIndex, individual, mutated);
     }
@@ -264,11 +277,6 @@ class GraphColoringGA {
 
     const [diversityVariance, diversitySpread] = this.computeDiversity();
 
-    //console.log("Average fitness: " + averageFitness);
-    //console.log("Max fitness: " + maxFitness);
-    //console.log("Max individual: " + maxIndividual);
-    //console.log("Ratio of unique solutions: " + uniqueSolutionDiversity);
-    //console.log("Variance: " + diversityVariance);
     this.sendMessage({
       topic: 'stats_update',
       averageFitness,
@@ -479,5 +487,6 @@ class GraphColoringGA {
 
 module.exports = {
   GraphColoringGA,
-  ALPHABET: ALPHABET
+  ALPHABET: ALPHABET,
+  COLOR_INDEX_MAP: COLOR_INDEX_MAP,
 };

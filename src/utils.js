@@ -18,8 +18,14 @@ function calculateVariance(array) {
   }));
 }
 
+// from: https://stackoverflow.com/a/10784675/943814
+function replaceAt(s, n, t) {
+    return s.substring(0, n) + t + s.substring(n + 1);
+}
+
 module.exports = {
   sum: sum,
   mean: calculateMean,
   variance: calculateVariance,
+  replaceAt: replaceAt,
 };
