@@ -15,6 +15,9 @@ function main(graphText) {
   const lines = graphText.split('\n');
   const numColors = Number(lines[0]);
   const edgeList = lines.slice(1);
+  const fitnessType = 'standard';
+  //const fitnessType = 'balanced';
+
   // TODO: making a duplicate graph here because apparently objects are
   // serialized when sent to workers which means callbacks throw exceptions.
   // find a cleaner way to do this
@@ -25,6 +28,7 @@ function main(graphText) {
     topic: 'ga_config',
     numGenerations,
     numColors,
+    fitnessType,
     edgeList,
   });
 
@@ -33,7 +37,7 @@ function main(graphText) {
     xLabel: "Generation",
     yLabel: "Fitness",
     domElementId: 'chart-stats',
-    yMin: 0.5,
+    yMin: 0,
     yMax: 1,
     maxPoints: numGenerations,
     numVariables: 3,

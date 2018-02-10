@@ -31,6 +31,7 @@ class GraphColoringGA {
   constructor({
     numColors,
     numGenerations,
+    fitnessType,
     graph,
     sendMessage,
   }) {
@@ -40,6 +41,7 @@ class GraphColoringGA {
     this.individualSize = graph.numVertices();
     this.sendMessage = sendMessage;
 
+    this.fitnessType = fitnessType;
     this.populationSize = 1000;
     this.mutationRate = 0.5;
     this.crossoverRate = 0.7;
@@ -82,15 +84,26 @@ class GraphColoringGA {
 
     this.population = this.randomPopulation();
 
+
+    let overallMaxFitness = 0;
+    let overallMaxIndividual = null;
+
+    let maxFitness
+    let maxIndividual;
+
     for (let i = 0; i < this.numGenerations; i++) {
 
       this.doGeneration(i);
       
-      const [maxFitness, maxIndividual] = this.computeStats();
+      [maxFitness, maxIndividual] = this.computeStats();
+
+      if (maxFitness > overallMaxFitness) {
+        overallMaxFitness = maxFitness;
+        overallMaxIndividual = maxIndividual;
+      }
 
       if (maxFitness === 1) {
         console.log("Optimum coloring found. Stopping");
-        console.log(maxIndividual);
         break;
       }
 
@@ -98,6 +111,11 @@ class GraphColoringGA {
     }
 
     console.log("GA done");
+    console.log("Report:");
+    console.log("Max Individual Final Generation:");
+    console.log(maxIndividual + ": " + maxFitness);
+    console.log("Max Individual Overall:");
+    console.log(overallMaxIndividual + ": " + overallMaxFitness);
   }
 
   doGeneration(index) {
@@ -284,19 +302,96 @@ class GraphColoringGA {
     return ALPHABET[randomIndex];
   }
 
-  fitness(coloring) {
+  fitness(individual) {
+
+    if (this.fitnessType === 'standard') {
+      return this.standardFitness(individual);
+    }
+    else if (this.fitnessType === 'balanced') {
+      return this.balancedFitness(individual);
+    }
+    else {
+      throw "Invalid fitness type";
+    }
+  }
+
+  standardFitness(individual) {
 
     const edges = this.graph.edges;
 
     let sum = 0;
     for (let edge of edges) {
 
-      if (coloring[edge.source] !== coloring[edge.target]) {
+      if (individual[edge.source] !== individual[edge.target]) {
         ++sum;
       }
     }
 
     return sum/edges.length;
+  }
+
+  balancedFitness(individual) {
+
+    const standardFitness = this.standardFitness(individual);
+    //const vertices = this.graph.vertices;
+
+    const counts = {};
+
+    for (let color of individual) {
+      
+      if (!counts[color]) {
+        counts[color] = 1;
+      }
+      else {
+        ++counts[color];
+      }
+    }
+
+    const numVertices = this.individualSize;
+
+    const perfectCount = numVertices / this.numColors;
+
+    let sum = 0;
+    for (let key in counts) {
+      sum += Math.abs(counts[key] - perfectCount);
+    }
+
+    //const balancedFitness = standardFitness * product;
+
+    //return balancedFitness;
+    return Math.abs(sum - numVertices);
+  }
+
+  balancedFitnessNoWorky(individual) {
+
+    const standardFitness = this.standardFitness(individual);
+    //const vertices = this.graph.vertices;
+
+    const counts = {};
+
+    for (let color of individual) {
+      
+      if (!counts[color]) {
+        counts[color] = 1;
+      }
+      else {
+        ++counts[color];
+      }
+    }
+
+    //console.log(counts);
+
+    let product = 1;
+
+    const numVertices = this.individualSize;
+
+    for (let key in counts) {
+      product *= (counts[key] / numVertices);
+    }
+
+    const balancedFitness = standardFitness * product;
+
+    return balancedFitness;
   }
 
   sendDiversity() {

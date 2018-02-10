@@ -12,12 +12,13 @@ module.exports = function(self) {
 
     if (message.data.topic === 'ga_config') {
       main(self, message.data.numGenerations,
-        message.data.numColors, message.data.edgeList);
+        message.data.numColors, message.data.edgeList,
+        message.data.fitnessType);
     }
   };
 };
 
-function main(self, numGenerations, numColors, edgeList) {
+function main(self, numGenerations, numColors, edgeList, fitnessType) {
 
   const graph = graphUtils.createGraphFromLines(edgeList);
 
@@ -30,6 +31,7 @@ function main(self, numGenerations, numColors, edgeList) {
   const ga = new GA.GraphColoringGA({
     numColors: numColors,
     numGenerations,
+    fitnessType,
     graph: graph,
     sendMessage: self.postMessage.bind(self)
   });
