@@ -10,7 +10,7 @@ axios.get('/data/sample_graph.g').then((response) => {
 
 function main(graphText) {
 
-  const numGenerations = 2000;
+  const numGenerations = 200;
 
   const lines = graphText.split('\n');
   const numColors = Number(lines[0]);
@@ -33,13 +33,15 @@ function main(graphText) {
     xLabel: "Generation",
     yLabel: "Fitness",
     domElementId: 'chart-stats',
+    yMin: 0.5,
     yMax: 1,
     maxPoints: numGenerations,
     numVariables: 3,
+    variableNames: ["Max Fitness", "Average Fitness", "Min Fitness"]
   });
 
   const graphChart = new Charts.Graph({
-    title: "Graph Coloring",
+    title: "Graph Coloring for Max Fitness",
     domElementId: 'chart-graph',
     vertices: graph.vertices.slice(),
     edges: graph.edges.slice(),

@@ -22,6 +22,11 @@ const GRAPH_COLORS = [
   '#cab2d6', // light purple
 ]
 
+
+function translate(x, y) {
+  return "translate(" + x + "," + y + ")";
+}
+
 class Chart {
 
   constructor({
@@ -49,8 +54,6 @@ class Chart {
 
     this.centerX = this.width / 2;
     this.centerY = this.height / 2;
-
-
   }
 }
 
@@ -78,10 +81,11 @@ class ScatterPlot extends TwoJsChart {
   constructor({
     title,
     domElementId,
+    yMin,
     yMax,
     maxPoints,
     numVariables,
-    color,
+    variableNames,
     xLabel,
     yLabel,
   }) {
@@ -89,10 +93,11 @@ class ScatterPlot extends TwoJsChart {
     super({ title, domElementId });
 
     this.yMax = yMax;
-    this.color = color;
+    this.numVariables = numVariables;
+    this.variableNames = variableNames;
 
     this.margins = {
-      left: 45,
+      left: 50,
       right: 30,
       top: 10,
       bottom: 45,
@@ -103,10 +108,10 @@ class ScatterPlot extends TwoJsChart {
       .range([this.margins.left, this.width - this.margins.right])
 
     this.yScale = d3.scaleLinear()
-      .domain([0, yMax])
+      .domain([yMin, yMax])
       .range([this.height - this.margins.bottom, this.margins.top])
 
-    const pointSize = 2;
+    const pointSize = 1;
 
     this.data = [];
     //this.points = [];
@@ -139,35 +144,32 @@ class ScatterPlot extends TwoJsChart {
 
     }
 
-    console.log(this.allData);
-    console.log(this.allDataSymbols);
-
-    const axesContainer = this.container
+    this.overlayContainer = this.container
       .append('svg')
         .attr('class', 'chart__axes-container')
         .attr('width', this.width)
         .attr('height', this.height)
 
     const xAxis = d3.axisBottom(this.xScale);
-    axesContainer
+    this.overlayContainer
       .append('g')
         .attr("transform", "translate(0,"+(this.height-this.margins.bottom)+")")
         .call(xAxis)
 
     const yAxisLeft = d3.axisLeft(this.yScale);
-    axesContainer
+    this.overlayContainer
       .append('g')
         .attr("transform", "translate("+(this.margins.left)+")")
         .call(yAxisLeft)
 
     const yAxisRight = d3.axisRight(this.yScale);
-    axesContainer
+    this.overlayContainer
       .append('g')
         .attr("transform", "translate("+(this.width-this.margins.right)+")")
         .call(yAxisRight)
 
     // yLabel
-    axesContainer 
+    this.overlayContainer 
       .append("text")
         .attr("class", "chart__axis-label")
         .attr("transform", "rotate(-90)")
@@ -177,13 +179,15 @@ class ScatterPlot extends TwoJsChart {
         .style("text-anchor", "middle")
 
     // xLabel
-    axesContainer 
+    this.overlayContainer 
       .append("text")
         .attr("class", "chart__axis-label")
         .attr("x", this.margins.left + (this.adjustedWidth() / 2))
         .attr("y", this.margins.top + this.adjustedHeight() + 35)
         .text(xLabel)
         .style("text-anchor", "middle")
+
+    this.makeLegend();
 
     // TODO: only used with the old render function
     // pre-allocate points offscreen
@@ -199,6 +203,33 @@ class ScatterPlot extends TwoJsChart {
     //this.two.bind('update', () => {
     //}).play();
     this.two.play();
+
+  }
+
+  makeLegend() {
+
+    const g = this.overlayContainer
+      .append("g")
+        .attr("class", "chart__legend")
+        .attr("transform", translate(this.width - 175, this.height - 130)) 
+
+    const variable = g
+      .selectAll(".chart__legend__variable")
+        .data(COLORS.slice(0, this.numVariables))
+      .enter()
+      .append("g")
+        .attr("class", "chart__legend__variable")
+    
+    variable.append("rect")
+        .attr("width", 15)
+        .attr("height", 15)
+        .attr("y", (d, i) => i*20)
+        .attr("fill", function(d) { return d; })
+
+    variable.append("text")
+        .attr("x", (d, i) => 20)
+        .attr("y", (d, i) => i*20 + 12)
+        .text((d, i) => this.variableNames[i])
 
   }
 
@@ -388,7 +419,7 @@ class DiversityPlot extends Chart {
     const ctx = this.canvas.getContext('2d');
     this.ctx = ctx;
 
-    ctx.strokeRect(0, 0, this.width, this.height);
+    ctx.strokeRect(0, 0, this.width - 1, this.height - 1);
 
     this.numGenerations = numGenerations;
 

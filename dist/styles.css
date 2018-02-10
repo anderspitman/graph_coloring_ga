@@ -25,6 +25,11 @@
     font-family: Arial;
 }
 
+.chart__legend__variable {
+    font-size: 10pt;
+    font-family: Arial;
+}
+
 #chart-diversity {
     /*
     width: 30%;
