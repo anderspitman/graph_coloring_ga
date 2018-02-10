@@ -94,6 +94,9 @@ class ScatterPlot extends TwoJsChart {
     variableNames,
     xLabel,
     yLabel,
+    symbolSize,
+    threshold,
+    legend
   }) {
 
     super({ title, domElementId });
@@ -113,6 +116,10 @@ class ScatterPlot extends TwoJsChart {
     xMin = xMin === undefined ? 0 : xMin;
     xMax = xMax === undefined ? maxPoints : xMax;
 
+    this.symbolSize = symbolSize === undefined ? 2 : symbolSize;
+    this.threshold = threshold;
+    this.legend = legend === undefined ? false : legend;
+
     this.xScale = d3.scaleLinear()
       .domain([xMin, xMax])
       .range([this.margins.left, this.width - this.margins.right]);
@@ -120,8 +127,6 @@ class ScatterPlot extends TwoJsChart {
     this.yScale = d3.scaleLinear()
       .domain([yMin, yMax])
       .range([this.height - this.margins.bottom, this.margins.top])
-
-    const pointSize = 1;
 
     this.data = [];
     //this.points = [];
@@ -152,9 +157,10 @@ class ScatterPlot extends TwoJsChart {
 
       for (let j = 0; j < maxPoints; j++) {
         // initially render off-screen
-        const point = this.two.makeCircle(-100, -100, pointSize);
+        const point = this.two.makeCircle(-100, -100, this.symbolSize);
         point.fill = COLORS[i];
-        point.stroke = point.fill;
+        //point.stroke = point.fill;
+        point.noStroke();
         this.symbols[i].push(point);
       }
 
@@ -203,7 +209,9 @@ class ScatterPlot extends TwoJsChart {
         .text(xLabel)
         .style("text-anchor", "middle")
 
-    this.makeLegend();
+    if (this.legend) {
+      this.makeLegend();
+    }
 
     // TODO: only used with the old render function
     // pre-allocate points offscreen
@@ -317,7 +325,23 @@ class ScatterPlot extends TwoJsChart {
       const xPos = this.xScale(this.xValues[i][lastAddedIndex]);
       const yPos = this.yScale(this.yValues[i][lastAddedIndex]);
       this.symbols[i][lastAddedIndex].translation.set(xPos, yPos);
+
+      if (this.threshold !== undefined) {
+
+        this.symbols[i][lastAddedIndex].opacity = .6;
+
+        if (this.yValues[i][lastAddedIndex] >= this.threshold) {
+          this.symbols[i][lastAddedIndex].fill = COLORS[2];
+        }
+        else {
+          this.symbols[i][lastAddedIndex].fill = COLORS[0];
+        }
+      }
     }
+  }
+
+  reset() {
+    this.valuesIndex = 0;
   }
 }
 
@@ -447,11 +471,9 @@ class DiversityPlot extends Chart {
     const ctx = this.canvas.getContext('2d');
     this.ctx = ctx;
 
-    ctx.strokeRect(0, 0, this.width - 1, this.height - 1);
+    this.reset();
 
     this.numGenerations = numGenerations;
-
-    this.generationIndex = 0;
   }
 
   appendGeneration(diversityData) {
@@ -481,6 +503,12 @@ class DiversityPlot extends Chart {
     ctx.globalAlpha = 1.0;
 
     ++this.generationIndex;
+  }
+
+  reset() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.ctx.strokeRect(0, 0, this.width - 1, this.height - 1);
+    this.generationIndex = 0;
   }
 }
 

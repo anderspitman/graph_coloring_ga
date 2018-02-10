@@ -1,4 +1,4 @@
-//const ps = require('./pubsub.js');
+const utils = require('./utils.js');
 
 const ALPHABET =
   'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789'; 
@@ -23,24 +23,6 @@ function getRandomInt(min, max) {
 
 function getRandomElement(array) {
   return array[getRandomInt(0, array.length)];
-}
-
-// math utils taken from: https://gist.github.com/Daniel-Hug/7273430
-function sum(array) {
-  var num = 0;
-  for (var i = 0, l = array.length; i < l; i++) {
-    num += array[i];
-  }
-  return num;
-}
-function calculateMean(array) {
-  return sum(array) / array.length;
-}
-function calculateVariance(array) {
-  const mean = calculateMean(array);
-  return calculateMean(array.map(function(num) {
-    return Math.pow(num - mean, 2);
-  }));
 }
 
 class GraphColoringGA {
@@ -132,6 +114,10 @@ class GraphColoringGA {
     console.log(maxIndividual + ": " + maxFitness);
     console.log("Max Individual Overall:");
     console.log(overallMaxIndividual + ": " + overallMaxFitness);
+
+    this.sendMessage({
+      topic: 'run_completed'
+    });
   }
 
   doGeneration(index) {
@@ -338,7 +324,7 @@ class GraphColoringGA {
       diversity: this.rawDiversityValues,
     });
 
-    return [calculateVariance(this.rawDiversityValues), diversitySpread];
+    return [utils.variance(this.rawDiversityValues), diversitySpread];
   }
 
   colorIndices(individual) {
