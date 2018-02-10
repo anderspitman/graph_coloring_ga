@@ -371,7 +371,7 @@ class Graph extends TwoJsChart {
     this.two.update();
   }
 
-  updateColors(colorIndices) {
+  update(colorIndices, maxIndividual) {
 
     for (let i = 0; i < this.visVertices.length; i++) {
       this.visVertices[i].fill = GRAPH_COLORS[colorIndices[i]];

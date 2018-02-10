@@ -66,7 +66,9 @@ function main(graphText) {
           message.data.minFitness,
         ]);
 
-        graphChart.updateColors(message.data.colorIndices);
+        graphChart.update(
+          message.data.colorIndices,
+          message.data.maxIndividual);
       break;
 
       case 'diversity_update':

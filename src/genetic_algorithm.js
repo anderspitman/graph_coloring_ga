@@ -86,8 +86,11 @@ class GraphColoringGA {
 
       this.doGeneration(i);
       
-      if (this.maxFitness() === 1) {
+      const [maxFitness, maxIndividual] = this.computeStats();
+
+      if (maxFitness === 1) {
         console.log("Optimum coloring found. Stopping");
+        console.log(maxIndividual);
         break;
       }
 
@@ -200,7 +203,7 @@ class GraphColoringGA {
     return mutated;
   }
 
-  maxFitness() {
+  computeStats() {
 
     let maxFitness = 0;
     let minFitness = 1.0;
@@ -240,7 +243,7 @@ class GraphColoringGA {
       colorIndices: this.colorIndices(maxIndividual),
     });
 
-    return maxFitness;
+    return [maxFitness, maxIndividual];
   }
 
   colorIndices(individual) {
