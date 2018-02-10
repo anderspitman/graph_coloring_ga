@@ -60,10 +60,10 @@ class GraphColoringGA {
 
     this.fitnessType = fitnessType;
     this.populationSize = 1000;
-    this.mutationRate = 0.5;
+    this.mutationRate = 0.01;
     this.crossoverRate = 0.7;
     // probability that more fit individual will be selected to be a parent
-    this.selectionBias = 0.8;
+    this.selectionBias = 0.90;
 
     this.diversity = new Float64Array(this.populationSize);
     this.diversitySpread = new Float64Array(this.populationSize);
@@ -154,6 +154,32 @@ class GraphColoringGA {
 
     if (newPopulation.length > this.population.length) {
       newPopulation = slice(0, newPopulation.length - 1);
+    }
+
+    if (index % 100 === 0) {
+
+      const numRandos = 990;
+      const newRandoms = [];
+      for (let i = 0; i < numRandos; i++) {
+        newRandoms.push(this.randomIndividual());
+      }
+
+      newPopulation.sort((a, b) => {
+        const fitA = this.fitness(a);
+        const fitB = this.fitness(b);
+        return fitB - fitA;
+      });
+
+      console.log(this.fitness(newPopulation[0]));
+      console.log(this.fitness(newPopulation[newPopulation.length-1]));
+
+      newPopulation = newPopulation.slice(0, this.populationSize-numRandos)
+        .concat(newRandoms);
+
+      if (newPopulation.length !== this.populationSize) {
+        console.log(newPopulation.length);
+        throw "fail wrong size";
+      }
     }
 
     this.population = newPopulation;
