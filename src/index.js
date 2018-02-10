@@ -10,7 +10,7 @@ axios.get('/data/sample_graph.g').then((response) => {
 
 function main(graphText) {
 
-  const numGenerations = 200;
+  const numGenerations = 1000;
 
   const lines = graphText.split('\n');
   const numColors = Number(lines[0]);
@@ -40,8 +40,10 @@ function main(graphText) {
     yMin: 0,
     yMax: 1,
     maxPoints: numGenerations,
-    numVariables: 3,
-    variableNames: ["Max Fitness", "Average Fitness", "Min Fitness"]
+    variableNames: [
+      "Max Fitness", "Average Fitness", "Min Fitness", "Ratio Unique",
+      "Diversity Variance", "Diversity Spread"
+    ]
   });
 
   const graphChart = new Charts.Graph({
@@ -68,6 +70,9 @@ function main(graphText) {
           message.data.maxFitness,
           message.data.averageFitness,
           message.data.minFitness,
+          message.data.uniqueSolutionDiversity,
+          message.data.diversityVariance,
+          message.data.diversitySpread,
         ]);
 
         graphChart.update(

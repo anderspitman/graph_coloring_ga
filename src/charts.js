@@ -3,7 +3,13 @@ const d3 = require('d3');
 
 // colors taken from the fantastic Color Brewer: http://colorbrewer2.org
 const COLORS = [
-  '#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628',
+  '#e41a1c', // red
+  '#377eb8', // blue
+  '#4daf4a', // green
+  '#984ea3', // purple
+  '#ff7f00', // orange
+  '#a65628',
+  '#ffff33', // yellow
   '#f781bf'
 ];
 
@@ -21,7 +27,6 @@ const GRAPH_COLORS = [
   '#fdbf6f', // light orange
   '#cab2d6', // light purple
 ]
-
 
 function translate(x, y) {
   return "translate(" + x + "," + y + ")";
@@ -84,7 +89,6 @@ class ScatterPlot extends TwoJsChart {
     yMin,
     yMax,
     maxPoints,
-    numVariables,
     variableNames,
     xLabel,
     yLabel,
@@ -93,7 +97,7 @@ class ScatterPlot extends TwoJsChart {
     super({ title, domElementId });
 
     this.yMax = yMax;
-    this.numVariables = numVariables;
+    this.numVariables = variableNames.length;
     this.variableNames = variableNames;
 
     this.margins = {
@@ -130,7 +134,7 @@ class ScatterPlot extends TwoJsChart {
     this.allData = [];
     this.allDataSymbols = [];
     this.allDataIndex = 0;
-    for (let i = 0; i < numVariables; i++) {
+    for (let i = 0; i < this.numVariables; i++) {
       this.allData.push(new Float32Array(maxPoints));
       this.allDataSymbols.push([]);
 
@@ -211,7 +215,7 @@ class ScatterPlot extends TwoJsChart {
     const g = this.overlayContainer
       .append("g")
         .attr("class", "chart__legend")
-        .attr("transform", translate(this.width - 175, this.height - 130)) 
+        .attr("transform", translate(this.width - 175, this.height - 300)) 
 
     const variable = g
       .selectAll(".chart__legend__variable")

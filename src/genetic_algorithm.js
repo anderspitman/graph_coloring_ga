@@ -25,6 +25,23 @@ function getRandomElement(array) {
   return array[getRandomInt(0, array.length)];
 }
 
+// math utils taken from: https://gist.github.com/Daniel-Hug/7273430
+function sum(array) {
+  var num = 0;
+  for (var i = 0, l = array.length; i < l; i++) {
+    num += array[i];
+  }
+  return num;
+}
+function calculateMean(array) {
+  return sum(array) / array.length;
+}
+function calculateVariance(array) {
+  const mean = calculateMean(array);
+  return calculateMean(array.map(function(num) {
+    return Math.pow(num - mean, 2);
+  }));
+}
 
 class GraphColoringGA {
 
@@ -49,6 +66,7 @@ class GraphColoringGA {
     this.selectionBias = 0.8;
 
     this.diversity = new Float64Array(this.populationSize);
+    this.diversitySpread = new Float64Array(this.populationSize);
     this.populationFitness = new Float32Array(this.populationSize);
 
     this.maxDiversityValue = 0;
@@ -106,8 +124,6 @@ class GraphColoringGA {
         console.log("Optimum coloring found. Stopping");
         break;
       }
-
-      this.sendDiversity();
     }
 
     console.log("GA done");
@@ -230,9 +246,13 @@ class GraphColoringGA {
     let maxIndividual = null;
     let minIndividual = null;
 
+    const uniqueSolutions = new Set();
+
     for (let individual of this.population) {
       const fitness = this.fitness(individual)
       sum += fitness;
+
+      uniqueSolutions.add(individual);
 
       //console.log(individual + ": " + fitness);
       if (fitness > maxFitness) {
@@ -246,11 +266,18 @@ class GraphColoringGA {
       }
     }
 
+    const uniqueSolutionDiversity =
+      uniqueSolutions.size / this.population.length;
+
     const averageFitness = sum / this.population.length;
+
+    const [diversityVariance, diversitySpread] = this.computeDiversity();
 
     //console.log("Average fitness: " + averageFitness);
     //console.log("Max fitness: " + maxFitness);
-    //console.log("Max individual: " +  maxIndividual);
+    //console.log("Max individual: " + maxIndividual);
+    //console.log("Ratio of unique solutions: " + uniqueSolutionDiversity);
+    //console.log("Variance: " + diversityVariance);
     this.sendMessage({
       topic: 'stats_update',
       averageFitness,
@@ -258,6 +285,9 @@ class GraphColoringGA {
       maxIndividual,
       minFitness,
       minIndividual,
+      uniqueSolutionDiversity,
+      diversityVariance,
+      diversitySpread,
       colorIndices: this.colorIndices(maxIndividual),
     });
 
@@ -394,12 +424,13 @@ class GraphColoringGA {
     return balancedFitness;
   }
 
-  sendDiversity() {
+  computeDiversity() {
 
     let max = 0;
     let maxIndividual = '';
+
     for (let i = 0; i < this.population.length; i++) {
-      this.diversity[i] = this.individualDiversity(this.population[i]);
+      this.diversity[i] = this.individualAsNumber(this.population[i]);
 
       if (this.diversity[i] > max) {
         max = this.diversity[i];
@@ -409,6 +440,27 @@ class GraphColoringGA {
       this.populationFitness[i] = this.fitness(this.population[i]);
     }
 
+    const start = performance.now();
+    // compute diversity spread metric
+    let spread = 0;
+    for (let i = 0; i < this.diversity.length; i++) {
+
+      this.diversitySpread[i] = 0;
+
+      for (let j = 0; j < this.diversity.length; j++) {
+
+        const diff = Math.abs(this.diversity[i] - this.diversity[j])
+        this.diversitySpread[i] += diff;
+
+        spread += diff;
+      }
+    }
+    const maxSpread = this.diversity.length*this.diversity.length;
+    const diversitySpread = spread/maxSpread;
+    const elapsed = performance.now() - start;
+    //console.log("elapsed: " + elapsed);
+    //console.log("spread: " + diversitySpread);
+
     //console.log("maxDiv: " + max);
     //console.log(maxIndividual);
 
@@ -417,9 +469,11 @@ class GraphColoringGA {
       diversity: this.diversity,
       fitness: this.populationFitness,
     });
+
+    return [calculateVariance(this.diversity), diversitySpread];
   }
 
-  individualDiversity(individual) {
+  individualAsNumber(individual) {
 
     let value = 0;
     for (let i = 0; i < this.maxDiversityIndex; i++) {
