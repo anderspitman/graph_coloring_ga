@@ -65,7 +65,7 @@ class GraphColoringGA {
     // probability that more fit individual will be selected to be a parent
     this.selectionBias = 0.8;
 
-    this.diversity = new Float64Array(this.populationSize);
+    this.rawDiversityValues = new Float64Array(this.populationSize);
     this.diversitySpread = new Float64Array(this.populationSize);
     this.populationFitness = new Float32Array(this.populationSize);
 
@@ -248,8 +248,13 @@ class GraphColoringGA {
 
     const uniqueSolutions = new Set();
 
-    for (let individual of this.population) {
+    for (let i = 0; i < this.population.length; i++) {
+    //for (let individual of this.population) {
+      const individual = this.population[i];
       const fitness = this.fitness(individual)
+
+      this.populationFitness[i] = fitness;
+
       sum += fitness;
 
       uniqueSolutions.add(individual);
@@ -292,6 +297,48 @@ class GraphColoringGA {
     });
 
     return [maxFitness, maxIndividual];
+  }
+
+  computeDiversity() {
+
+    // compute raw diversity metric
+    for (let i = 0; i < this.population.length; i++) {
+      this.rawDiversityValues[i] = this.individualAsNumber(this.population[i]);
+    }
+
+    //const start = performance.now();
+
+    // compute diversity spread metric
+    let spread = 0;
+    for (let i = 0; i < this.rawDiversityValues.length; i++) {
+
+      this.diversitySpread[i] = 0;
+
+      for (let j = 0; j < this.rawDiversityValues.length; j++) {
+
+        const diff = Math.abs(
+          this.rawDiversityValues[i] - this.rawDiversityValues[j])
+        this.diversitySpread[i] += diff;
+
+        spread += diff;
+      }
+    }
+
+    const maxSpread =
+      this.rawDiversityValues.length * this.rawDiversityValues.length;
+
+    const diversitySpread = spread / maxSpread;
+
+    //const elapsed = performance.now() - start;
+    //console.log("elapsed: " + elapsed);
+    //console.log("spread: " + diversitySpread);
+
+    this.sendMessage({
+      topic: 'diversity_update',
+      diversity: this.rawDiversityValues,
+    });
+
+    return [calculateVariance(this.rawDiversityValues), diversitySpread];
   }
 
   colorIndices(individual) {
@@ -422,55 +469,6 @@ class GraphColoringGA {
     const balancedFitness = standardFitness * product;
 
     return balancedFitness;
-  }
-
-  computeDiversity() {
-
-    let max = 0;
-    let maxIndividual = '';
-
-    for (let i = 0; i < this.population.length; i++) {
-      this.diversity[i] = this.individualAsNumber(this.population[i]);
-
-      if (this.diversity[i] > max) {
-        max = this.diversity[i];
-        maxIndividual = this.population[i];
-      }
-
-      this.populationFitness[i] = this.fitness(this.population[i]);
-    }
-
-    const start = performance.now();
-    // compute diversity spread metric
-    let spread = 0;
-    for (let i = 0; i < this.diversity.length; i++) {
-
-      this.diversitySpread[i] = 0;
-
-      for (let j = 0; j < this.diversity.length; j++) {
-
-        const diff = Math.abs(this.diversity[i] - this.diversity[j])
-        this.diversitySpread[i] += diff;
-
-        spread += diff;
-      }
-    }
-    const maxSpread = this.diversity.length*this.diversity.length;
-    const diversitySpread = spread/maxSpread;
-    const elapsed = performance.now() - start;
-    //console.log("elapsed: " + elapsed);
-    //console.log("spread: " + diversitySpread);
-
-    //console.log("maxDiv: " + max);
-    //console.log(maxIndividual);
-
-    this.sendMessage({
-      topic: 'diversity_update',
-      diversity: this.diversity,
-      fitness: this.populationFitness,
-    });
-
-    return [calculateVariance(this.diversity), diversitySpread];
   }
 
   individualAsNumber(individual) {

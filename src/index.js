@@ -46,6 +46,19 @@ function main(graphText) {
     ]
   });
 
+  const multirunChart = new Charts.ScatterPlot({
+    title: "Multirun",
+    xLabel: "Diversity",
+    yLabel: "Fitness",
+    domElementId: 'chart-multirun',
+    yMin: 0.85,
+    yMax: 1,
+    xMin: 0.65,
+    xMax: 1,
+    maxPoints: numGenerations,
+    variableNames: [ "Fitness vs Diversity" ]
+  });
+
   const graphChart = new Charts.Graph({
     title: "Graph Coloring for Max Fitness",
     domElementId: 'chart-graph',
@@ -66,14 +79,26 @@ function main(graphText) {
 
       case 'stats_update':
 
-        statsChart.addPoints([
-          message.data.maxFitness,
-          message.data.averageFitness,
-          message.data.minFitness,
-          message.data.uniqueSolutionDiversity,
-          message.data.diversityVariance,
-          message.data.diversitySpread,
-        ]);
+        statsChart.addPoints({
+          yVals: [
+            message.data.maxFitness,
+            message.data.averageFitness,
+            message.data.minFitness,
+            message.data.uniqueSolutionDiversity,
+            message.data.diversityVariance,
+            message.data.diversitySpread,
+          ],
+        });
+
+        multirunChart.addPoints({
+          xVals: [
+            message.data.uniqueSolutionDiversity,
+          ],
+          yVals: [
+            message.data.maxFitness,
+            //message.data.minFitness,
+          ],
+        });
 
         graphChart.update(
           message.data.colorIndices,

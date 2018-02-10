@@ -88,6 +88,8 @@ class ScatterPlot extends TwoJsChart {
     domElementId,
     yMin,
     yMax,
+    xMin,
+    xMax,
     maxPoints,
     variableNames,
     xLabel,
@@ -107,9 +109,13 @@ class ScatterPlot extends TwoJsChart {
       bottom: 45,
     };
 
+
+    xMin = xMin === undefined ? 0 : xMin;
+    xMax = xMax === undefined ? maxPoints : xMax;
+
     this.xScale = d3.scaleLinear()
-      .domain([0, maxPoints])
-      .range([this.margins.left, this.width - this.margins.right])
+      .domain([xMin, xMax])
+      .range([this.margins.left, this.width - this.margins.right]);
 
     this.yScale = d3.scaleLinear()
       .domain([yMin, yMax])
@@ -131,19 +137,25 @@ class ScatterPlot extends TwoJsChart {
     background.noStroke();
 
 
-    this.allData = [];
-    this.allDataSymbols = [];
-    this.allDataIndex = 0;
+    this.xValues = [];
+    this.yValues = [];
+
+    this.valuesIndex = 0;
+
+    this.symbols = [];
+
     for (let i = 0; i < this.numVariables; i++) {
-      this.allData.push(new Float32Array(maxPoints));
-      this.allDataSymbols.push([]);
+      
+      this.xValues.push(new Float32Array(maxPoints));
+      this.yValues.push(new Float32Array(maxPoints));
+      this.symbols.push([]);
 
       for (let j = 0; j < maxPoints; j++) {
         // initially render off-screen
         const point = this.two.makeCircle(-100, -100, pointSize);
         point.fill = COLORS[i];
         point.stroke = point.fill;
-        this.allDataSymbols[i].push(point);
+        this.symbols[i].push(point);
       }
 
     }
@@ -254,12 +266,23 @@ class ScatterPlot extends TwoJsChart {
     this.render();
   }
 
-  addPoints(points) {
+  addPoints({ xVals, yVals }) {
 
-    for (let i = 0; i < this.allData.length; i++) {
-      this.allData[i][this.allDataIndex] = points[i];
+    if (yVals.length < this.numVariables) {
+      throw "not enough yVals for " + this.numVariables + " variables";
     }
-    ++this.allDataIndex;
+
+    for (let i = 0; i < this.yValues.length; i++) {
+      this.yValues[i][this.valuesIndex] = yVals[i];
+
+      if (xVals === undefined) {
+        this.xValues[i][this.valuesIndex] = this.valuesIndex;
+      }
+      else {
+        this.xValues[i][this.valuesIndex] = xVals[i];
+      }
+    }
+    ++this.valuesIndex;
 
     this.addPointsRender();
   }
@@ -287,12 +310,13 @@ class ScatterPlot extends TwoJsChart {
 
   addPointsRender() {
 
-    const lastAddedIndex = this.allDataIndex - 1;
+    const lastAddedIndex = this.valuesIndex - 1;
 
-    for (let i = 0; i < this.allData.length; i++) {
-      const xPos = this.xScale(lastAddedIndex);
-      const yPos = this.yScale(this.allData[i][lastAddedIndex]);
-      this.allDataSymbols[i][lastAddedIndex].translation.set(xPos, yPos);
+    for (let i = 0; i < this.yValues.length; i++) {
+      //const xPos = this.xScale(lastAddedIndex);
+      const xPos = this.xScale(this.xValues[i][lastAddedIndex]);
+      const yPos = this.yScale(this.yValues[i][lastAddedIndex]);
+      this.symbols[i][lastAddedIndex].translation.set(xPos, yPos);
     }
   }
 }
@@ -430,7 +454,7 @@ class DiversityPlot extends Chart {
     this.generationIndex = 0;
   }
 
-  appendGeneration(diversityData, fitnessData) {
+  appendGeneration(diversityData) {
 
     // TODO: figure out if there's any way sorting could make canvas run
     // faster (or slower), ie from not having to move the ctx as far between
@@ -451,7 +475,6 @@ class DiversityPlot extends Chart {
 
     for (let i = 0; i < diversityData.length; i++) {
       const xPos = diversityData[i] * this.width;
-      //ctx.fillStyle = this.scale(fitnessData[i]);
       ctx.fillRect(xPos, yPos, 2, ySize);
     }
 
