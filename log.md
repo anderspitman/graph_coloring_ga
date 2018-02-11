@@ -53,3 +53,9 @@
   to "bin" it by look at just the top n bits, and putting everything that falls
   under that value into the same bin. It's more coarse, but for large numbers
   you wouldn't be able to see it anyway.
+
+
+# 2018-02-10
+
+* [After 2 hours of debugging] my Erdos Renyi implementation appears to not
+  be properly guarding against self-loops

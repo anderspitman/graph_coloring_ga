@@ -19,7 +19,6 @@ function run(ALPHABET, COLOR_INDEX_MAP, validColoring, numColors) {
 
       // don't duplicate
       //if (GA.ALPHABET[j] !== currentColor) {
-      console.log(GA);
       if (ALPHABET[j] !== validColoring[i]) {
         const newColor = nextColor(currentColor)
         const newIndividual =

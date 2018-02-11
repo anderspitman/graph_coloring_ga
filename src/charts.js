@@ -1,6 +1,8 @@
 const Two = require('two.js');
 const d3 = require('d3');
 
+const utils = require('./utils.js');
+
 // colors taken from the fantastic Color Brewer: http://colorbrewer2.org
 const COLORS = [
   '#e41a1c', // red
@@ -378,7 +380,6 @@ class Graph extends TwoJsChart {
 
       this.two.update();
     });
-
 
     const sim = d3.forceSimulation(vertices)
      .force("charge", d3.forceManyBody().strength(-100))

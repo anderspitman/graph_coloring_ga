@@ -2,8 +2,9 @@ const axios = require('axios');
 const work = require('webworkify');
 
 const utils = require('./utils.js');
-const graphUtils = require('./graph.js');
+const Graph = require('./graph.js');
 const Charts = require('./charts.js');
+const ER = require('./erdos_renyi.js');
 
 axios.get('/data/sample_graph.g').then((response) => {
   runGA(response.data);
@@ -14,15 +15,20 @@ function runGA(graphText) {
   const numGenerations = 500;
 
   const lines = graphText.split('\n');
-  const numColors = Number(lines[0]);
-  const edgeList = lines.slice(1);
+  //const numColors = Number(lines[0]);
+  const numColors = 3;
+  const edgeListLines = lines.slice(1);
   const fitnessType = 'standard';
   //const fitnessType = 'balanced';
 
-  // TODO: making a duplicate graph here because apparently objects are
-  // serialized when sent to workers which means callbacks throw exceptions.
-  // find a cleaner way to do this
-  const graph = graphUtils.createGraphFromLines(edgeList);
+  const erGraph = ER.createGraph({
+    numVertices: 50,
+    averageDegree: 5,
+  });
+
+  //const graph = Graph.createGraphFromLines(edgeListLines);
+  const graph = erGraph;
+  const graphObj = graph.export();
 
   const statsChart = new Charts.ScatterPlot({
     title: "Fitness",
@@ -38,27 +44,27 @@ function runGA(graphText) {
     ]
   });
 
-  const multirunChart = new Charts.ScatterPlot({
-    title: "Multirun",
-    xLabel: "Ratio Unique Solutions",
-    yLabel: "Fitness",
-    domElementId: 'chart-multirun',
-    yMin: 0.95,
-    yMax: 1,
-    xMin: 0.8,
-    xMax: 1,
-    symbolSize: 5,
-    threshold: 1.0,
-    maxPoints: numGenerations,
-    variableNames: [ "Fitness vs Unique" ],
-    legend: false,
-  });
+  //const multirunChart = new Charts.ScatterPlot({
+  //  title: "Multirun",
+  //  xLabel: "Ratio Unique Solutions",
+  //  yLabel: "Fitness",
+  //  domElementId: 'chart-multirun',
+  //  yMin: 0.95,
+  //  yMax: 1,
+  //  xMin: 0.8,
+  //  xMax: 1,
+  //  symbolSize: 5,
+  //  threshold: 1.0,
+  //  maxPoints: numGenerations,
+  //  variableNames: [ "Fitness vs Unique" ],
+  //  legend: false,
+  //});
 
   const graphChart = new Charts.Graph({
     title: "Graph Coloring for Max Fitness",
     domElementId: 'chart-graph',
-    vertices: graph.vertices.slice(),
-    edges: graph.edges.slice(),
+    vertices: utils.deepCopy(graph.vertices),
+    edges: utils.deepCopy(graph.edges),
   });
 
   const diversityPlot = new Charts.DiversityPlot({
@@ -66,6 +72,13 @@ function runGA(graphText) {
     domElementId: 'chart-diversity',
     numGenerations,
   });
+
+  //const erGraphChart = new Charts.Graph({
+  //  title: "Erdos Renyi Graph",
+  //  domElementId: 'chart-er-graph',
+  //  vertices: erGraph.vertices.slice(),
+  //  edges: erGraph.edges.slice(),
+  //});
 
   const numRuns = 1;
   const maxFitnessVals = new Float64Array(numRuns);
@@ -96,7 +109,9 @@ function runGA(graphText) {
       numGenerations,
       numColors,
       fitnessType,
-      edgeList,
+      // Note: have to send edgelist because apparently class instances can't
+      // traverse the web worker barrier
+      graphObj, 
     });
 
     worker.addEventListener('message', (message) => {
@@ -124,7 +139,7 @@ function runGA(graphText) {
               data.diversitySpread,
             ],
           });
-          
+
           graphChart.update(
             data.colorIndices,
             data.maxIndividual);
@@ -146,14 +161,14 @@ function runGA(graphText) {
           }
           const averageUnique = sum / generationIndex;
 
-          multirunChart.addPoints({
-            xVals: [
-              averageUnique
-            ],
-            yVals: [
-              runMaxFitness
-            ],
-          });
+          //multirunChart.addPoints({
+          //  xVals: [
+          //    averageUnique
+          //  ],
+          //  yVals: [
+          //    runMaxFitness
+          //  ],
+          //});
 
           if (runMaxFitness >= 1.0) {
             ++successCount;

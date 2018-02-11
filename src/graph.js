@@ -24,7 +24,6 @@ class Graph {
   }
 
   degree({ vertexId }) {
-    console.log("vertexId: " + vertexId);
     return Object.keys(this.verticesObj[vertexId].neighbors).length;
   }
 
@@ -45,7 +44,7 @@ class Graph {
     }
   }
 
-  addVertexIfNew(vertexId) {
+  addVertexIfNew({ vertexId }) {
 
     if (this.verticesObj[vertexId] === undefined) {
 
@@ -63,8 +62,8 @@ class Graph {
 
   addEdgeIfNew({ sourceId, targetId }) {
 
-    this.addVertexIfNew(sourceId);
-    this.addVertexIfNew(targetId);
+    this.addVertexIfNew({ vertexId: sourceId });
+    this.addVertexIfNew({ vertexId: targetId });
 
     if (this.verticesObj[sourceId].neighbors[targetId] === undefined &&
         this.verticesObj[targetId].neighbors[sourceId] === undefined) {
@@ -80,6 +79,42 @@ class Graph {
       this.edges.push(edge);
     }
   }
+
+  export() {
+
+    const obj = {
+      vertices: [],
+      edges: [],
+    };
+
+    for (let vertex of this.vertices) {
+      obj.vertices.push({
+        id: vertex.id
+      });
+    }
+
+    for (let edge of this.edges) {
+      obj.edges.push({
+        sourceId: this.vertices[edge.source].id,
+        targetId: this.vertices[edge.target].id,
+      });
+    }
+
+    return obj;
+  }
+
+  import({ graphObj }) {
+
+    const graph = new Graph();
+
+    for (let vertex of graphObj.vertices) {
+      this.addVertexIfNew({ vertexId: vertex.id });
+    }
+
+    for (let edge of graphObj.edges) {
+      this.addEdgeIfNew({ sourceId: edge.sourceId, targetId: edge.targetId });
+    }
+  }
 }
 
 function createGraphFromLines(lines) {
@@ -87,10 +122,9 @@ function createGraphFromLines(lines) {
   const graph = new Graph();
   graph.readEdgesFromLines(lines);
 
-  console.log(graph);
-
   return graph;
 }
+
 
 module.exports = {
   Graph,

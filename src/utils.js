@@ -23,9 +23,14 @@ function replaceAt(s, n, t) {
     return s.substring(0, n) + t + s.substring(n + 1);
 }
 
+function deepCopy(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 module.exports = {
-  sum: sum,
+  sum,
   mean: calculateMean,
   variance: calculateVariance,
-  replaceAt: replaceAt,
+  replaceAt,
+  deepCopy,
 };

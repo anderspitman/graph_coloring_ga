@@ -68,9 +68,6 @@ class GraphColoringGA {
         this.maxDiversityValue = nextMax;
         ++this.maxDiversityIndex;
       }
-
-      //console.log(this.maxDiversityValue);
-      //console.log(Number.MAX_VALUE);
     }
   }
 
@@ -229,8 +226,6 @@ class GraphColoringGA {
       const newColorIndex = getRandomInt(0, this.numColors);
       const newColor = ALPHABET[newColorIndex];
       mutated = utils.replaceAt(individual, mutationIndex, newColor);
-
-      //console.log(mutationIndex, individual, mutated);
     }
 
     return mutated;
@@ -258,7 +253,6 @@ class GraphColoringGA {
 
       uniqueSolutions.add(individual);
 
-      //console.log(individual + ": " + fitness);
       if (fitness > maxFitness) {
         maxFitness = fitness;
         maxIndividual = individual;
@@ -386,15 +380,21 @@ class GraphColoringGA {
     }
   }
 
-  standardFitness(individual) {
+  standardFitness(individual, debug) {
 
     const edges = this.graph.edges;
 
     let sum = 0;
-    for (let edge of edges) {
+    //for (let edge of edges) {
+    for (let i = 0; i < edges.length; i++) {
+      const edge = edges[i];
 
       if (individual[edge.source] !== individual[edge.target]) {
         ++sum;
+      }
+      else if (debug) {
+        console.log("mismatch:");
+        console.log(i, edge.source, edge.target);
       }
     }
 
@@ -449,8 +449,6 @@ class GraphColoringGA {
         ++counts[color];
       }
     }
-
-    //console.log(counts);
 
     let product = 1;
 
