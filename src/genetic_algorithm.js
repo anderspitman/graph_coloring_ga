@@ -111,9 +111,15 @@ class GraphColoringGA {
           }
         }
 
-        console.log("Valid 1-step for individual " + maxIndividual + ": ");
-        console.log(numValid / oneStepIndividuals.length);
+        const neutrality = numValid / oneStepIndividuals.length;
+        //console.log("Valid 1-step for individual " + maxIndividual + ": ");
 
+        this.sendMessage({
+          topic: 'neutrality_update',
+          neutrality,
+        });
+
+        // end GA execution
         break;
       }
     }

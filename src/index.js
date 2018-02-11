@@ -22,21 +22,21 @@ function runGA(graphText) {
   const fitnessType = 'standard';
   //const fitnessType = 'balanced';
 
-  const erChart = new Charts.ScatterPlot({
-    title: "Erdos Renyi Graph",
-    domElementId: 'chart-er-graph',
+  const multirunChart = new Charts.ScatterPlot({
+    title: "Neutrality vs Degree",
+    domElementId: 'chart-multirun',
     xLabel: "Average Degree",
-    yLabel: "Average Max Fitness",
+    yLabel: "Neutrality",
     xMin: 0,
     xMax: 6,
     yMin: 0,
     yMax: 1,
     symbolSize: 3,
     maxPoints: numGenerations,
-    variableNames: [ "Fitness vs Degree" ],
+    variableNames: [ "Neutrality vs Degree" ],
   });
 
-  const numRuns = 20;
+  const numRuns = 10;
   let runIndex = 0;
 
   const maxFitnessVals = new Float64Array(numGenerations);
@@ -86,22 +86,6 @@ function runGA(graphText) {
       ]
     });
 
-    //const multirunChart = new Charts.ScatterPlot({
-    //  title: "Multirun",
-    //  xLabel: "Ratio Unique Solutions",
-    //  yLabel: "Fitness",
-    //  domElementId: 'chart-multirun',
-    //  yMin: 0.95,
-    //  yMax: 1,
-    //  xMin: 0.8,
-    //  xMax: 1,
-    //  symbolSize: 5,
-    //  threshold: 1.0,
-    //  maxPoints: numGenerations,
-    //  variableNames: [ "Fitness vs Unique" ],
-    //  legend: false,
-    //});
-
     const graphChart = new Charts.Graph({
       title: "Graph Coloring for Max Fitness",
       domElementId: 'chart-graph',
@@ -120,6 +104,7 @@ function runGA(graphText) {
 
     let runMaxFitness = 0;
     let generationIndex = 0;
+    let lastNeutrality = 0;
 
     const worker = work(require('./ga_worker.js'));
     worker.postMessage({
@@ -170,6 +155,13 @@ function runGA(graphText) {
             message.data.fitness);
         break;
 
+        case 'neutrality_update':
+
+          console.log("neutrality received: " + message.data.neutrality);
+          lastNeutrality = message.data.neutrality;
+
+        break;
+
         case 'run_completed':
 
           // manual mean because generationIndex is likely less that
@@ -180,34 +172,31 @@ function runGA(graphText) {
           }
           const averageUnique = sum / generationIndex;
 
-          //multirunChart.addPoints({
-          //  xVals: [
-          //    averageUnique
-          //  ],
-          //  yVals: [
-          //    runMaxFitness
-          //  ],
-          //});
-
           const averageMaxFitness = utils.mean(maxFitnessVals);
-          erChart.addPoints({
-            xVals: [
-              graph.averageDegree(),
-            ],
-            yVals: [
-              averageMaxFitness,
-            ],
-          });
 
           if (runMaxFitness >= 1.0) {
+
             ++successCount;
+
+            console.log("lastNeutrality: " + lastNeutrality);
+            multirunChart.addPoints({
+              xVals: [
+                graph.averageDegree(),
+              ],
+              yVals: [
+                lastNeutrality
+              ],
+            });
+
+            // only continue to the next run after we find a valid coloring
+            ++runIndex;
           }
 
           const runNum = runIndex + 1;
           console.log("Run " + runNum + " completed");
           console.log("Ratio successful: " + successCount / runNum);
 
-          ++runIndex;
+          //++runIndex;
 
           doRun();
         break;
