@@ -43,6 +43,10 @@ class Chart {
 
     this.elem = document.getElementById(domElementId);
 
+    while(this.elem.firstChild) {
+      this.elem.removeChild(this.elem.firstChild);
+    }
+
     const text = d3.select(this.elem)
       .append('div')
         .attr('class', 'chart__title')

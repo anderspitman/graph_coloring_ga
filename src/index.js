@@ -1,5 +1,6 @@
 const axios = require('axios');
 const work = require('webworkify');
+const d3 = require('d3');
 
 const utils = require('./utils.js');
 const Graph = require('./graph.js');
@@ -21,72 +22,32 @@ function runGA(graphText) {
   const fitnessType = 'standard';
   //const fitnessType = 'balanced';
 
-  const erGraph = ER.createGraph({
-    numVertices: 50,
-    averageDegree: 5,
-  });
-
-  //const graph = Graph.createGraphFromLines(edgeListLines);
-  const graph = erGraph;
-  const graphObj = graph.export();
-
-  const statsChart = new Charts.ScatterPlot({
-    title: "Fitness",
-    xLabel: "Generation",
-    yLabel: "Fitness",
-    domElementId: 'chart-stats',
-    yMin: 0,
-    yMax: 1,
+  const erChart = new Charts.ScatterPlot({
+    title: "Erdos Renyi Graph",
+    domElementId: 'chart-er-graph',
+    xLabel: "Average Degree",
+    yLabel: "Average Max Fitness",
+    xMin: 0,
+    xMax: 6,
+    yMin: 0.95,
+    yMax: 1.05,
     maxPoints: numGenerations,
-    variableNames: [
-      "Max Fitness", "Average Fitness", "Min Fitness", "Ratio Unique",
-      "Diversity Variance", "Diversity Spread"
-    ]
+    variableNames: [ "Fitness vs Degree" ],
   });
 
-  //const multirunChart = new Charts.ScatterPlot({
-  //  title: "Multirun",
-  //  xLabel: "Ratio Unique Solutions",
-  //  yLabel: "Fitness",
-  //  domElementId: 'chart-multirun',
-  //  yMin: 0.95,
-  //  yMax: 1,
-  //  xMin: 0.8,
-  //  xMax: 1,
-  //  symbolSize: 5,
-  //  threshold: 1.0,
-  //  maxPoints: numGenerations,
-  //  variableNames: [ "Fitness vs Unique" ],
-  //  legend: false,
-  //});
-
-  const graphChart = new Charts.Graph({
-    title: "Graph Coloring for Max Fitness",
-    domElementId: 'chart-graph',
-    vertices: utils.deepCopy(graph.vertices),
-    edges: utils.deepCopy(graph.edges),
-  });
-
-  const diversityPlot = new Charts.DiversityPlot({
-    title: "Diversity",
-    domElementId: 'chart-diversity',
-    numGenerations,
-  });
-
-  //const erGraphChart = new Charts.Graph({
-  //  title: "Erdos Renyi Graph",
-  //  domElementId: 'chart-er-graph',
-  //  vertices: erGraph.vertices.slice(),
-  //  edges: erGraph.edges.slice(),
-  //});
-
-  const numRuns = 1;
+  const numRuns = 20;
   const maxFitnessVals = new Float64Array(numRuns);
   const uniqueSolutionDiversityVals = new Float64Array(numRuns);
   let runIndex = 0;
 
   const runUniques = new Float64Array(numGenerations);
   let successCount = 0;
+
+  const lowestTargetDegree = 1;
+  const highestTargetDegree = 5;
+  const degreeScale = d3.scaleLinear()
+    .domain([0, numRuns])
+    .range([lowestTargetDegree, highestTargetDegree])
 
   doRun();
   
@@ -96,6 +57,62 @@ function runGA(graphText) {
     if (runIndex === numRuns) {
       return;
     }
+
+    const targetDegree = degreeScale(runIndex);
+
+    console.log("targetDegree: " + targetDegree);
+
+    const erGraph = ER.createGraph({
+      numVertices: 50,
+      averageDegree: targetDegree,
+    });
+
+    //const graph = Graph.createGraphFromLines(edgeListLines);
+    const graph = erGraph;
+    const graphObj = graph.export();
+
+    const statsChart = new Charts.ScatterPlot({
+      title: "Fitness",
+      xLabel: "Generation",
+      yLabel: "Fitness",
+      domElementId: 'chart-stats',
+      yMin: 0,
+      yMax: 1,
+      maxPoints: numGenerations,
+      variableNames: [
+        "Max Fitness", "Average Fitness", "Min Fitness", "Ratio Unique",
+        "Diversity Variance", "Diversity Spread"
+      ]
+    });
+
+    //const multirunChart = new Charts.ScatterPlot({
+    //  title: "Multirun",
+    //  xLabel: "Ratio Unique Solutions",
+    //  yLabel: "Fitness",
+    //  domElementId: 'chart-multirun',
+    //  yMin: 0.95,
+    //  yMax: 1,
+    //  xMin: 0.8,
+    //  xMax: 1,
+    //  symbolSize: 5,
+    //  threshold: 1.0,
+    //  maxPoints: numGenerations,
+    //  variableNames: [ "Fitness vs Unique" ],
+    //  legend: false,
+    //});
+
+    const graphChart = new Charts.Graph({
+      title: "Graph Coloring for Max Fitness",
+      domElementId: 'chart-graph',
+      vertices: utils.deepCopy(graph.vertices),
+      edges: utils.deepCopy(graph.edges),
+    });
+
+    const diversityPlot = new Charts.DiversityPlot({
+      title: "Diversity",
+      domElementId: 'chart-diversity',
+      numGenerations,
+    });
 
     statsChart.reset();
     diversityPlot.reset();
@@ -169,6 +186,15 @@ function runGA(graphText) {
           //    runMaxFitness
           //  ],
           //});
+
+          erChart.addPoints({
+            xVals: [
+              graph.averageDegree(),
+            ],
+            yVals: [
+              runMaxFitness,
+            ],
+          });
 
           if (runMaxFitness >= 1.0) {
             ++successCount;
