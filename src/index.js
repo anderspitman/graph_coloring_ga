@@ -13,7 +13,7 @@ axios.get('/data/sample_graph.g').then((response) => {
 
 function runGA(graphText) {
 
-  const numGenerations = 500;
+  const numGenerations = 200;
 
   const lines = graphText.split('\n');
   //const numColors = Number(lines[0]);
