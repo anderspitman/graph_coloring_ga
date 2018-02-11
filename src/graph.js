@@ -1,70 +1,98 @@
-function parseEdgeList(lines) {
 
-  const vertices = {};
-  const vertexArray = [];
-  const edges = [];
 
-  let vertexIndex = 0;
+class Graph {
+  constructor() {
+    this.verticesObj = {};
+    this.vertices = []
+    this.edges = [];
+    this.vertexIndex = 0;
+  }
 
-  function addIfNew(vertexId, neighborId) {
+  numVertices() {
+    return Object.keys(this.verticesObj).length;
+  }
 
-    if (!vertices[vertexId]) {
+  averageDegree() {
+
+    let sum = 0;
+    for (let i = 0; i < this.vertices.length; i++) {
+      const vertex = this.vertices[i];
+      sum += this.degree({ vertexId: vertex.id });
+    }
+
+    return sum / this.vertices.length;
+  }
+
+  degree({ vertexId }) {
+    console.log("vertexId: " + vertexId);
+    return Object.keys(this.verticesObj[vertexId].neighbors).length;
+  }
+
+  readEdgesFromLines(lines) {
+
+    for (let i = 0; i < lines.length; i++) {
+
+      const line = lines[i];
+
+      // skip blank lines
+      if (line.length === 0) {
+        continue;
+      }
+
+      const [sourceId, targetId] = line.split(' ');
+
+      this.addEdgeIfNew({ sourceId, targetId });
+    }
+  }
+
+  addVertexIfNew(vertexId) {
+
+    if (this.verticesObj[vertexId] === undefined) {
 
       const vertex = {
         id: vertexId,
-        index: vertexIndex,
+        index: this.vertexIndex,
+        neighbors: {},
       };
 
-      vertices[vertexId] = vertex;
-      vertexArray.push(vertex);
-      vertexIndex++;
+      this.verticesObj[vertexId] = vertex;
+      this.vertices.push(vertex);
+      this.vertexIndex++;
     }
   }
 
-  for (let i = 0; i < lines.length; i++) {
+  addEdgeIfNew({ sourceId, targetId }) {
 
-    const line = lines[i];
+    this.addVertexIfNew(sourceId);
+    this.addVertexIfNew(targetId);
 
-    // skip blank lines
-    if (line.length === 0) {
-      continue;
+    if (this.verticesObj[sourceId].neighbors[targetId] === undefined &&
+        this.verticesObj[targetId].neighbors[sourceId] === undefined) {
+
+      this.verticesObj[sourceId].neighbors[targetId] = 1;
+      this.verticesObj[targetId].neighbors[sourceId] = 1;
+
+      const edge = {
+        source: this.verticesObj[sourceId].index,
+        target: this.verticesObj[targetId].index,
+      };
+
+      this.edges.push(edge);
     }
-
-    const [sourceId, targetId] = line.split(' ');
-
-    addIfNew(sourceId, targetId);
-    addIfNew(targetId, sourceId);
-
-    const edge = {
-      source: vertices[sourceId].index,
-      target: vertices[targetId].index,
-    };
-
-    edges.push(edge);
   }
-
-  return [vertexArray, edges];
 }
 
 function createGraphFromLines(lines) {
-  const [vertices, edges] = parseEdgeList(lines);
 
-  return {
-    vertices,
-    edges,
-    numVertices: () => {
-      return Object.keys(vertices).length;
-    },
-  };
-}
+  const graph = new Graph();
+  graph.readEdgesFromLines(lines);
 
-function parseLine(line) {
+  console.log(graph);
 
-  const [ source, target ] = line.split(' ');
-  return { source: source, target: target };
+  return graph;
 }
 
 module.exports = {
-  parseEdgeList,
+  Graph,
   createGraphFromLines
 };
