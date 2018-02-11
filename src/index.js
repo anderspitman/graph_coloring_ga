@@ -29,16 +29,17 @@ function runGA(graphText) {
     yLabel: "Average Max Fitness",
     xMin: 0,
     xMax: 6,
-    yMin: 0.95,
-    yMax: 1.05,
+    yMin: 0,
+    yMax: 1,
+    symbolSize: 3,
     maxPoints: numGenerations,
     variableNames: [ "Fitness vs Degree" ],
   });
 
   const numRuns = 20;
-  const maxFitnessVals = new Float64Array(numRuns);
-  const uniqueSolutionDiversityVals = new Float64Array(numRuns);
   let runIndex = 0;
+
+  const maxFitnessVals = new Float64Array(numGenerations);
 
   const runUniques = new Float64Array(numGenerations);
   let successCount = 0;
@@ -143,6 +144,7 @@ function runGA(graphText) {
             runMaxFitness = data.maxFitness;
           }
 
+          maxFitnessVals[generationIndex] = data.maxFitness;
           runUniques[generationIndex] = data.uniqueSolutionDiversity;
           ++generationIndex;
 
@@ -187,12 +189,13 @@ function runGA(graphText) {
           //  ],
           //});
 
+          const averageMaxFitness = utils.mean(maxFitnessVals);
           erChart.addPoints({
             xVals: [
               graph.averageDegree(),
             ],
             yVals: [
-              runMaxFitness,
+              averageMaxFitness,
             ],
           });
 
