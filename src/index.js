@@ -22,19 +22,19 @@ function runGA(graphText) {
   const fitnessType = 'standard';
   //const fitnessType = 'balanced';
 
-  const multirunChart = new Charts.ScatterPlot({
-    title: "Neutrality vs Degree",
-    domElementId: 'chart-multirun',
-    xLabel: "Average Degree",
-    yLabel: "Neutrality",
-    xMin: 0,
-    xMax: 6,
-    yMin: 0,
-    yMax: 1,
-    symbolSize: 3,
-    maxPoints: numGenerations,
-    variableNames: [ "Neutrality vs Degree" ],
-  });
+  //const multirunChart = new Charts.ScatterPlot({
+  //  title: "Neutrality vs Degree",
+  //  domElementId: 'chart-multirun',
+  //  xLabel: "Average Degree",
+  //  yLabel: "Neutrality",
+  //  xMin: 0,
+  //  xMax: 6,
+  //  yMin: 0,
+  //  yMax: 1,
+  //  symbolSize: 3,
+  //  maxPoints: numGenerations,
+  //  variableNames: [ "Neutrality vs Degree" ],
+  //});
 
   const numRuns = 1;
   let runIndex = 0;
@@ -179,14 +179,14 @@ function runGA(graphText) {
             ++successCount;
 
             console.log("lastNeutrality: " + lastNeutrality);
-            multirunChart.addPoints({
-              xVals: [
-                graph.averageDegree(),
-              ],
-              yVals: [
-                lastNeutrality
-              ],
-            });
+            //multirunChart.addPoints({
+            //  xVals: [
+            //    graph.averageDegree(),
+            //  ],
+            //  yVals: [
+            //    lastNeutrality
+            //  ],
+            //});
 
             // only continue to the next run after we find a valid coloring
             //++runIndex;
