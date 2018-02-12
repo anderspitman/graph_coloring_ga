@@ -25,5 +25,10 @@ function main(self, { numGenerations, numColors, graphObj, fitnessType }) {
     sendMessage: self.postMessage.bind(self)
   });
 
+  //const individual = 'aeecdedabdbbaedccdecaacbb';
+  //console.log("Fitness for " + individual + ": ");
+  //console.log("Num nodes: " + graph.vertices.length);
+  //console.log("Num colors: " + numColors);
+  //const fit = ga.fitness(individual);
   ga.run();
 }

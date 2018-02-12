@@ -16,11 +16,11 @@ function runGA(graphText) {
   const numGenerations = 200;
 
   const lines = graphText.split('\n');
-  //const numColors = Number(lines[0]);
-  const numColors = 3;
+  const numColors = Number(lines[0]);
+  //const numColors = 3;
   const edgeListLines = lines.slice(1);
-  const fitnessType = 'standard';
-  //const fitnessType = 'balanced';
+  //const fitnessType = 'standard';
+  const fitnessType = 'balanced';
 
   const multirunChart = new Charts.ScatterPlot({
     title: "Neutrality vs Degree",
@@ -36,7 +36,7 @@ function runGA(graphText) {
     variableNames: [ "Neutrality vs Degree" ],
   });
 
-  const numRuns = 10;
+  const numRuns = 1;
   let runIndex = 0;
 
   const maxFitnessVals = new Float64Array(numGenerations);
@@ -68,8 +68,8 @@ function runGA(graphText) {
       averageDegree: targetDegree,
     });
 
-    //const graph = Graph.createGraphFromLines(edgeListLines);
-    const graph = erGraph;
+    const graph = Graph.createGraphFromLines(edgeListLines);
+    //const graph = erGraph;
     const graphObj = graph.export();
 
     const statsChart = new Charts.ScatterPlot({
@@ -189,14 +189,14 @@ function runGA(graphText) {
             });
 
             // only continue to the next run after we find a valid coloring
-            ++runIndex;
+            //++runIndex;
           }
 
           const runNum = runIndex + 1;
           console.log("Run " + runNum + " completed");
           console.log("Ratio successful: " + successCount / runNum);
 
-          //++runIndex;
+          ++runIndex;
 
           doRun();
         break;

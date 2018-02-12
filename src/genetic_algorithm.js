@@ -69,6 +69,7 @@ class GraphColoringGA {
         ++this.maxDiversityIndex;
       }
     }
+
   }
 
   run() {
@@ -426,17 +427,28 @@ class GraphColoringGA {
 
     const numVertices = this.individualSize;
 
-    const perfectCount = numVertices / this.numColors;
+    const countKeys = Object.keys(counts);
 
-    let sum = 0;
-    for (let key in counts) {
-      sum += Math.abs(counts[key] - perfectCount);
+    let biggestDiff = 0;
+
+    for (let i = 0; i < countKeys.length; i++) {
+      for (let j = 0;j < countKeys.length; j++) {
+        const diff = Math.abs(counts[countKeys[i]] - counts[countKeys[j]]);
+
+        if (diff > biggestDiff) {
+          biggestDiff = diff;
+        }
+      }
     }
 
-    //const balancedFitness = standardFitness * product;
+    const balancedFactor = 1 - (biggestDiff / this.numColors);
 
-    //return balancedFitness;
-    return Math.abs(sum - numVertices);
+    //console.log(counts);
+    //console.log(biggestDiff);
+    //console.log(standardFitness);
+    //console.log(balancedFactor);
+
+    return balancedFactor * standardFitness;
   }
 
   balancedFitnessNoWorky(individual) {
