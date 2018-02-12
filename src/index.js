@@ -19,8 +19,8 @@ function runGA(graphText) {
   const numColors = Number(lines[0]);
   //const numColors = 3;
   const edgeListLines = lines.slice(1);
-  //const fitnessType = 'standard';
-  const fitnessType = 'balanced';
+  const fitnessType = 'standard';
+  //const fitnessType = 'balanced';
 
   const multirunChart = new Charts.ScatterPlot({
     title: "Neutrality vs Degree",
